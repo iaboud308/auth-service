@@ -83,10 +83,26 @@ namespace auth_service.Services
         }
 
 
-        public User GetUserByEmail(string email)
+        public User GetUserByEmail(string email, string context)
         {
-            return _nebutonContext.Users.FirstOrDefault(u => u.Email == email);
-            // Find out what happens if user doesn't exist
+            if (context.Equals("nebuton"))
+            {
+                return _nebutonContext.Users.FirstOrDefault(u => u.Email == email);
+                // Find out what happens if user doesn't exist
+            }
+
+            if (context.Equals("hyderion"))
+            {
+                return _hyderionContext.Users.FirstOrDefault(u => u.Email == email);
+            }
+
+            User user = new User();
+            user.Email = email;
+            user.FirstName = "Invalid";
+            user.LastName = "User";
+
+            return user;
+
         }
 
 
@@ -107,11 +123,38 @@ namespace auth_service.Services
 
 
 
-        public string GenerateJwt(string email, string role)
+        public string GenerateNebutonJwt(string email, string role)
         {
 
 
             byte[] keyBytes = Encoding.UTF8.GetBytes(AppConfig.NebutonJwtSecurityKey());
+            SymmetricSecurityKey key = new SymmetricSecurityKey(keyBytes);
+            SigningCredentials creds = new SigningCredentials(key, algorithm: SecurityAlgorithms.HmacSha512);
+            List<Claim> claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Email, email),
+            new Claim(ClaimTypes.Role, role)
+        };
+
+            JwtSecurityToken token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: creds
+                );
+
+            string jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return jwt;
+
+        }
+
+
+
+        public string GenerateHyderionJwt(string email, string role)
+        {
+
+
+            byte[] keyBytes = Encoding.UTF8.GetBytes(AppConfig.HyderionJwtSecurityKey());
             SymmetricSecurityKey key = new SymmetricSecurityKey(keyBytes);
             SigningCredentials creds = new SigningCredentials(key, algorithm: SecurityAlgorithms.HmacSha512);
             List<Claim> claims = new List<Claim>
@@ -144,7 +187,7 @@ namespace auth_service.Services
                 return null;
             }
 
-            User user = GetUserByEmail(userLogin.Email);
+            User user = GetUserByEmail(userLogin.Email, context);
             bool correctPassword = ConfirmPassword(userLogin.Password, user.HashedPassword);
 
             if (!correctPassword)
@@ -152,7 +195,20 @@ namespace auth_service.Services
                 return null;
             }
 
-            string jwt = GenerateJwt(user.Email, user.UserRole);
+            string jwt = "";
+
+
+            if (context.Equals("nebuton"))
+            {
+                jwt = GenerateNebutonJwt(user.Email, user.UserRole);
+
+            }
+
+            if (context.Equals("hyderion"))
+            {
+                jwt = GenerateHyderionJwt(user.Email, user.UserRole);
+
+            }
 
             UserVerified verifiedUser = new UserVerified(user, jwt);
 

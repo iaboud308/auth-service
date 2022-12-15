@@ -1,18 +1,19 @@
-﻿using auth_service.Models;
+﻿
+
+using auth_service.Models;
 using auth_service.Services;
 using Microsoft.AspNetCore.Mvc;
-
 
 namespace server.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class UsersController : ControllerBase
+public class HyderionUsersController : ControllerBase
 {
 
     private readonly UserServices _userServices;
 
-    public UsersController(UserServices userServices)
+    public HyderionUsersController(UserServices userServices)
     {
         _userServices = userServices;
     }
@@ -20,7 +21,7 @@ public class UsersController : ControllerBase
     [HttpPost("login")]
     public IActionResult Login(UserLogin loginUser)
     {
-        UserVerified verifiedUser = _userServices.Login(loginUser, "nebuton");
+        UserVerified verifiedUser = _userServices.Login(loginUser, "hyderion");
         return Ok(verifiedUser);
     }
 
@@ -28,7 +29,7 @@ public class UsersController : ControllerBase
     [HttpPost("register")]
     public IActionResult Register(UserRegistration userReg)
     {
-        bool status = _userServices.RegisterUser(userReg, "nebuton");
+        bool status = _userServices.RegisterUser(userReg, "hyderion");
         return Ok(status);
     }
 

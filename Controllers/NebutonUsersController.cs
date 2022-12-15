@@ -1,18 +1,19 @@
-﻿using auth_service.Models;
+﻿
+
+using auth_service.Models;
 using auth_service.Services;
 using Microsoft.AspNetCore.Mvc;
-
 
 namespace server.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class UsersController : ControllerBase
+public class NebutonUsersController : ControllerBase
 {
 
     private readonly UserServices _userServices;
 
-    public UsersController(UserServices userServices)
+    public NebutonUsersController(UserServices userServices)
     {
         _userServices = userServices;
     }
