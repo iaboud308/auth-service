@@ -23,6 +23,8 @@ public class NebutonUsersController : ControllerBase
     {
         UserVerified verifiedUser = _userServices.Login(loginUser, "nebuton");
         return Ok(verifiedUser);
+        // string jwt = _userServices.GenerateNebutonJwt("iaboud308@gmail.com", "Admin");
+        // return Ok(jwt);
     }
 
 
