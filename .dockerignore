@@ -9,3 +9,4 @@ obj
 Migrations
 Dockerfile
 docker-compose.yml
+local-deploy.sh

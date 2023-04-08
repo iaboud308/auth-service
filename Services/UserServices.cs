@@ -7,20 +7,27 @@ using auth_service.Entities;
 using auth_service.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog.Core;
 
 namespace auth_service.Services
 {
 	public class UserServices
 	{
-
-		private readonly NebutonDbContext _nebutonContext;
+        private readonly ILogger<UserServices> _logger;
+        private readonly NebutonDbContext _nebutonContext;
 		private readonly HyderionDbContext _hyderionContext;
+        private readonly MmDbContext _mmDbContext;
 
 
-		public UserServices(NebutonDbContext nebutonDbContext, HyderionDbContext hyderionDbContext)
+        public UserServices(ILogger<UserServices> logger, 
+                            NebutonDbContext nebutonDbContext, 
+                            HyderionDbContext hyderionDbContext, 
+                            MmDbContext mmDbContext)
 		{
+            _logger = logger;
 			_nebutonContext = nebutonDbContext;
 			_hyderionContext = hyderionDbContext;
+            _mmDbContext = mmDbContext;
 		}
 
 
@@ -32,11 +39,19 @@ namespace auth_service.Services
 
             if (userExists)
             {
+                _logger.LogInformation("User exists");
                 return false;
             }
 
+
+            _logger.LogInformation("User doesn't exist");
+
+
             string hashedPassword = HashPassword(user.Password);
             User newUser = new User(user.FirstName, user.LastName, user.Email, hashedPassword, user.UserRole);
+
+            
+            _logger.LogInformation("User details: {@user}", user);
 
 
             if (context.Equals("nebuton"))
@@ -49,6 +64,13 @@ namespace auth_service.Services
             {
                 _hyderionContext.Users.Add(newUser);
                 _hyderionContext.SaveChanges();
+            }
+
+            if (context.Equals("mm"))
+            {
+                
+                _mmDbContext.Users.Add(newUser);
+                _mmDbContext.SaveChanges();
             }
 
             return true;
@@ -79,6 +101,11 @@ namespace auth_service.Services
                 return _hyderionContext.Users.Any(u => u.Email == email);
             }
 
+             if (context.Equals("mm"))
+            {
+                return _mmDbContext.Users.Any(u => u.Email == email);
+            }
+
             return true;
         }
 
@@ -94,6 +121,11 @@ namespace auth_service.Services
             if (context.Equals("hyderion"))
             {
                 return _hyderionContext.Users.FirstOrDefault(u => u.Email == email);
+            }
+
+            if (context.Equals("mm"))
+            {
+                return _mmDbContext.Users.FirstOrDefault(u => u.Email == email);
             }
 
             User user = new User();
@@ -176,6 +208,32 @@ namespace auth_service.Services
         }
 
 
+          public string GenerateMmJwt(string email, string role)
+        {
+
+
+            byte[] keyBytes = Encoding.UTF8.GetBytes(AppConfig.MMJwtSecurityKey());
+            SymmetricSecurityKey key = new SymmetricSecurityKey(keyBytes);
+            SigningCredentials creds = new SigningCredentials(key, algorithm: SecurityAlgorithms.HmacSha512);
+            List<Claim> claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Email, email),
+            new Claim(ClaimTypes.Role, role)
+        };
+
+            JwtSecurityToken token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: creds
+                );
+
+            string jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return jwt;
+
+        }
+
+
 
 
         public UserVerified Login(UserLogin userLogin, string context)
@@ -207,6 +265,11 @@ namespace auth_service.Services
             if (context.Equals("hyderion"))
             {
                 jwt = GenerateHyderionJwt(user.Email, user.UserRole);
+
+            }
+            if (context.Equals("mm"))
+            {
+                jwt = GenerateMmJwt(user.Email, user.UserRole);
 
             }
 

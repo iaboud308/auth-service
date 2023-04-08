@@ -5,6 +5,7 @@
 .vscode
 bin
 obj
+logs
 
 mysql-mm/*
 mysql-nebuton/*
@@ -16,4 +17,5 @@ docker-compose.yml
 
 AppConfig.cs
 push-deploy.sh
+local-deploy.sh
 
