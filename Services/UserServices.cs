@@ -242,6 +242,7 @@ namespace auth_service.Services
 
             if (!userExists)
             {
+                _logger.LogError("User doesn't exist");
                 return null;
             }
 
@@ -250,6 +251,7 @@ namespace auth_service.Services
 
             if (!correctPassword)
             {
+                _logger.LogError("Incorrect password");
                 return null;
             }
 
@@ -258,17 +260,20 @@ namespace auth_service.Services
 
             if (context.Equals("nebuton"))
             {
+                _logger.LogInformation("User: {@email}, Context: {@context}", user.Email, context);
                 jwt = GenerateNebutonJwt(user.Email, user.UserRole);
 
             }
 
             if (context.Equals("hyderion"))
             {
+                _logger.LogInformation("User: {@email}, Context: {@context}", user.Email, context);
                 jwt = GenerateHyderionJwt(user.Email, user.UserRole);
 
             }
             if (context.Equals("mm"))
             {
+                _logger.LogInformation("User: {@email}, Context: {@context}", user.Email, context);
                 jwt = GenerateMmJwt(user.Email, user.UserRole);
 
             }
