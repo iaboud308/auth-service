@@ -40,7 +40,7 @@ try {
         options.AddPolicy(name: "MyAllowedSpecificOrigins",
             policy  =>
             {
-                policy.WithOrigins("http://localhost:3000", "https://dev.hyderion.com");
+                policy.WithOrigins("http://localhost:3000", "https://dev.hyderion.com", "https://auth-demo.hyderion.com");
             });
     });
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
