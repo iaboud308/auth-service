@@ -7,7 +7,7 @@ FROM golang:1.17-alpine
 WORKDIR /app
 
 # Copy go.mod and go.sum to download dependencies
-COPY go.mod ./
+COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy the source code
