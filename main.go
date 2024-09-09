@@ -1,25 +1,20 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
-	"log"
-
-	_ "github.com/lib/pq"
+	"net/http"
 )
 
-func main() {
-	connStr := "postgres://authuser:authpassword@db-auth-service:5432/authdb?sslmode=disable"
-
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		log.Fatal("Failed to open database connection:", err)
-	}
-
-	err = db.Ping()
-	if err != nil {
-		log.Fatal("Failed to connect to the auth database:", err)
-	}
-
-	fmt.Println("Successfully connected to the auth database!")
+func handler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Auth service running!")
 }
+
+func main() {
+	http.HandleFunc("/", handler)
+	fmt.Println("Starting auth service on port 8081")
+	if err := http.ListenAndServe("0.0.0.0:8081", nil); err != nil {
+		fmt.Println("Failed to start server:", err)
+	}
+}
+
+// connStr := "postgres://authuser:authpassword@db-auth-service:5432/authdb?sslmode=disable"
