@@ -1,0 +1,18 @@
+
+
+version: '3.8'
+
+services:
+  auth-service:
+    container_name: auth-c  # Container name for the auth service
+    build:
+      context: .
+    image: auth-i  # Image name
+    ports:
+      - "5002:8081"  # Host port 5002 -> Container port 8081
+    networks:
+      - epma-network
+
+networks:
+  epma-network:
+    external: true
