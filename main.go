@@ -1,20 +1,22 @@
 package main
 
 import (
-	"fmt"
+	"auth-service/routes"
+	"auth-service/services"
+	"log"
 	"net/http"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Auth service running!")
-}
-
 func main() {
-	http.HandleFunc("/", handler)
-	fmt.Println("Starting auth service on port 8081")
-	if err := http.ListenAndServe("0.0.0.0:8081", nil); err != nil {
-		fmt.Println("Failed to start server:", err)
-	}
+	// Initialize the database connection using lib/pq
+	services.InitDB()
+
+	// Setup routes
+	router := routes.SetupRouter()
+
+	// Start the server
+	log.Println("Starting server on :8080")
+	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
 // connStr := "postgres://authuser:authpassword@db-auth-service:5432/authdb?sslmode=disable"
