@@ -4,7 +4,6 @@ import (
 	"auth-service/models"
 	"auth-service/services"
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
@@ -45,22 +44,17 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	// Retrieve the user from the database
 	user, err := services.GetUserByUsername(credentials.Username)
 
-	log.Println(err)
-
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(credentials.Password), bcrypt.DefaultCost)
-
-	log.Println("Hashed password from DB:", user.Password)
-	log.Println("Password from user input:", hashedPassword)
-
 	if err != nil {
-		http.Error(w, "Invalid username", http.StatusUnauthorized)
+		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 		return
 	}
 
 	// Compare the password
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password))
+	loginHashedPassword, _ := bcrypt.GenerateFromPassword([]byte(credentials.Password), bcrypt.DefaultCost)
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), loginHashedPassword)
 	if err != nil {
-		http.Error(w, "Invalid password", http.StatusUnauthorized)
+		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 		return
 	}
 
