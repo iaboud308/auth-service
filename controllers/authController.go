@@ -53,14 +53,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	// Compare the password
 	loginHashedPassword, _ := bcrypt.GenerateFromPassword([]byte(credentials.Password), bcrypt.DefaultCost)
 
+	log.Println("Hashed password from DB:", user.Password)
+	log.Println("Password from user input:", loginHashedPassword)
+
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), loginHashedPassword)
 	if err != nil {
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 		return
 	}
-
-	log.Println("Hashed password from DB:", user.Password)
-	log.Println("Password from user input:", loginHashedPassword)
 
 	// Generate JWT token
 	token, err := services.GenerateJWT(user)
