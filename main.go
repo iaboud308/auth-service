@@ -15,8 +15,8 @@ func main() {
 	router := routes.SetupRouter()
 
 	// Start the server
-	log.Println("Starting server on :8080")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Println("Starting server on :8081")
+	log.Fatal(http.ListenAndServe(":8081", router))
 }
 
 // connStr := "postgres://authuser:authpassword@db-auth-service:5432/authdb?sslmode=disable"
