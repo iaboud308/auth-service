@@ -4,6 +4,7 @@ import (
 	"auth-service/models"
 	"auth-service/services"
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
@@ -57,6 +58,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 		return
 	}
+
+	log.Println("Hashed password from DB:", user.Password)
+	log.Println("Password from user input:", loginHashedPassword)
 
 	// Generate JWT token
 	token, err := services.GenerateJWT(user)
