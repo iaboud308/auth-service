@@ -37,7 +37,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 func Login(w http.ResponseWriter, r *http.Request) {
 	var credentials struct {
 		Username string `json:"username"`
-		Password string `json:"password"`
+		Password []byte `json:"password"`
 	}
 
 	_ = json.NewDecoder(r.Body).Decode(&credentials)
@@ -52,7 +52,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	// Compare the password
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), credentials.Password)
 	log.Println(err)
 	if err != nil {
 		http.Error(w, "Invalid password", http.StatusUnauthorized)
