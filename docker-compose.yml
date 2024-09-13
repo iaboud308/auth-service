@@ -1,7 +1,5 @@
 
 
-version: '3.8'
-
 services:
   auth-service:
     container_name: auth-service-c  # Container name for the auth service
