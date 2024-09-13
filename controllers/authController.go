@@ -21,7 +21,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error creating user", http.StatusInternalServerError)
 		return
 	}
-	user.Password = string(hashedPassword)
+	user.Password = hashedPassword
 
 	// Create user in the database
 	if err := services.CreateUser(&user); err != nil {
