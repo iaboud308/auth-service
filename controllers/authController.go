@@ -55,9 +55,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	var hashedPassword, _ = bcrypt.GenerateFromPassword([]byte(credentials.Password), bcrypt.DefaultCost)
 	// var stringHashedPassword = string(hashedPassword)
 
-	log.Println([]byte(user.Password))
-	log.Println(credentials.Password)
-	log.Println("Hashed password: ", hashedPassword)
+	log.Println("Hashed User password: ", user.Password)
+	log.Println("Stringified User password: ", string(user.Password))
+	log.Println("Stringified Credentials password: ", string(hashedPassword))
+	log.Println("Hashed Credentials password: ", hashedPassword)
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password))
 	if err != nil {
