@@ -4,7 +4,6 @@ import (
 	"auth-service/models"
 	"auth-service/services"
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
@@ -21,7 +20,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error creating user", http.StatusInternalServerError)
 		return
 	}
-	user.Password = hashedPassword
+	user.Password = string(hashedPassword)
 
 	// Create user in the database
 	if err := services.CreateUser(&user); err != nil {
@@ -51,14 +50,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Compare the password
-
-	var hashedPassword, _ = bcrypt.GenerateFromPassword([]byte(credentials.Password), bcrypt.DefaultCost)
-	// var stringHashedPassword = string(hashedPassword)
-
-	log.Println("Hashed User password: ", user.Password)
-	log.Println("Stringified User password: ", string(user.Password))
-	log.Println("Stringified Credentials password: ", string(hashedPassword))
-	log.Println("Hashed Credentials password: ", hashedPassword)
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password))
 	if err != nil {
