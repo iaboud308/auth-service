@@ -51,15 +51,13 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Compare the password
-	loginHashedPassword, _ := bcrypt.GenerateFromPassword([]byte(credentials.Password), bcrypt.DefaultCost)
 
-	var newHashedPassword = string(loginHashedPassword)
+	credentials.Password = string(credentials.Password)
 
-	log.Println("Hashed password from DB:", user.Password)
-	log.Println("Password from user input:", credentials.Password)
-	log.Println("Hashed password from user input:", newHashedPassword)
+	log.Println(user.Password)
+	log.Println(credentials.Password)
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(newHashedPassword))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password))
 	if err != nil {
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 		return
