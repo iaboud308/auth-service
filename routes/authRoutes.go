@@ -2,6 +2,7 @@ package routes
 
 import (
 	"auth-service/controllers"
+	"auth-service/middleware"
 
 	"github.com/gorilla/mux"
 )
@@ -24,6 +25,10 @@ func SetupRouter() *mux.Router {
 
 	// Get user info
 	router.HandleFunc("/auth/userinfo", controllers.GetUserInfo).Methods("GET")
+
+	// Approve and Decline User (admin only)
+	router.HandleFunc("/auth/user/approve/{userID}", middleware.RequireAdmin(controllers.ApproveUser)).Methods("POST")
+	router.HandleFunc("/auth/user/decline/{userID}", middleware.RequireAdmin(controllers.DeclineUser)).Methods("POST")
 
 	return router
 }

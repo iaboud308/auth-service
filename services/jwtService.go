@@ -11,17 +11,17 @@ import (
 
 // JWT claims structure
 type CustomClaims struct {
-	Username string `json:"username"`
-	System   string `json:"system"`
+	Email    string `json:"email"`
+	System   int    `json:"system"`
 	Role     string `json:"role"`
-	Hospital string `json:"hospital"`
+	Hospital int    `json:"hospital"`
 	jwt.StandardClaims
 }
 
 // GenerateJWT creates a new token for a user
 func GenerateJWT(user *models.User) (string, error) {
 	claims := CustomClaims{
-		Username: user.Username,
+		Email:    user.Email,
 		System:   user.System,
 		Role:     user.Role,
 		Hospital: user.Hospital,
@@ -31,13 +31,17 @@ func GenerateJWT(user *models.User) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(config.JWTSecret))
+	return token.SignedString([]byte(config.JWTSecrets[user.System]))
 }
 
 // ValidateJWT checks if a token is valid
 func ValidateJWT(tokenStr string) (bool, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(config.JWTSecret), nil
+		if claims, ok := token.Claims.(*CustomClaims); ok {
+			// Get the appropriate secret based on the system
+			return []byte(config.JWTSecrets[claims.System]), nil
+		}
+		return nil, errors.New("unable to parse token claims")
 	})
 
 	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
@@ -55,7 +59,11 @@ func RevokeToken(tokenStr string) error {
 // GetUserFromToken parses the JWT token and returns the associated user info
 func GetUserFromToken(tokenStr string) (*models.User, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(config.JWTSecret), nil
+		if claims, ok := token.Claims.(*CustomClaims); ok {
+			// Get the appropriate secret based on the system
+			return []byte(config.JWTSecrets[claims.System]), nil
+		}
+		return nil, errors.New("unable to parse token claims")
 	})
 
 	if err != nil {
@@ -64,7 +72,7 @@ func GetUserFromToken(tokenStr string) (*models.User, error) {
 
 	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
 		return &models.User{
-			Username: claims.Username,
+			Email:    claims.Email,
 			System:   claims.System,
 			Role:     claims.Role,
 			Hospital: claims.Hospital,
