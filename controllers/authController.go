@@ -38,14 +38,16 @@ func Register(w http.ResponseWriter, r *http.Request) {
 // Handles user login
 func Login(w http.ResponseWriter, r *http.Request) {
 	var credentials struct {
-		Username string `json:"username"`
+		Email    string `json:"email"`
 		Password []byte `json:"password"`
+		System   int    `json:"system"`
+		Hospital int    `json:"hospital"`
 	}
 
 	_ = json.NewDecoder(r.Body).Decode(&credentials)
 
 	// Retrieve the user from the database
-	user, err := services.GetUserByUsername(credentials.Username)
+	user, err := services.GetUserByUsername(credentials.Email)
 
 	if err != nil {
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
