@@ -27,6 +27,12 @@ func InitDB() {
 }
 
 func CreateUser(user *models.User) error {
+
+	var checkUser *models.User
+	if checkUser, _ = GetUserByEmail(user.Email, user.Hospital); checkUser != nil {
+		return errors.New("user already exists")
+	}
+
 	user.Status = "pending"
 	sql := `INSERT INTO users (first_name, last_name, email, password, system, role, hospital, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
 	_, err := db.Exec(sql, user.FirstName, user.LastName, user.Email, user.Password, user.System, user.Role, user.Hospital, user.Status)
@@ -35,7 +41,7 @@ func CreateUser(user *models.User) error {
 }
 
 func GetUserByEmail(email string, hospital string) (*models.User, error) {
-	sql := `SELECT first_name, last_name, email, password, system, role, hospital, status FROM users WHERE email = $1 AND hospital = $2`
+	sql := `SELECT first_name, last_name, email, password, system, role, hospital, status FROM users WHERE email = $1 AND hospital = $2 AND status = 'approved'`
 	row := db.QueryRow(sql, email, hospital)
 
 	var user models.User

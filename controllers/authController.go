@@ -18,7 +18,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(&user)
 
 	// Hash the password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	log.Println("Hardcoded bcrypt hash:", string(hashedPassword))
 
 	if err != nil {
@@ -53,7 +53,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(&credentials)
 
 	// Retrieve the user from the database
-	user, err := services.GetUserByEmail(credentials.Email, credentials.Hospital)
+	user, err := services.GetUserByEmail("iaboud308@gmail.com", credentials.Hospital)
 
 	if err != nil {
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
@@ -65,7 +65,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	// Compare the password
 
-	err = bcrypt.CompareHashAndPassword([]byte("$2a$10$IopuX00i1w0U.4pz1EHQSeGFW.NETZJn/zg7THEc5J66cSD5Yr2Ma"), []byte("password2"))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte("12345"))
 	log.Println("Login Controller", err)
 	if err != nil {
 		http.Error(w, "Invalid password", http.StatusUnauthorized)
