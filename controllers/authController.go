@@ -47,7 +47,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(&credentials)
 
 	// Retrieve the user from the database
-	user, err := services.GetUserByUsername(credentials.Email)
+	user, err := services.GetUserByEmail(credentials.Email)
 
 	if err != nil {
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)

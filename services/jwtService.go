@@ -4,6 +4,7 @@ import (
 	"auth-service/config"
 	"auth-service/models"
 	"errors"
+	"log"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -11,35 +12,50 @@ import (
 
 // JWT claims structure
 type CustomClaims struct {
-	Email    string `json:"email"`
-	System   int    `json:"system"`
-	Role     string `json:"role"`
-	Hospital int    `json:"hospital"`
+	ID        int    `json:"id"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Email     string `json:"email"`
+	System    string `json:"system"`
+	Role      string `json:"role"`
+	Hospital  string `json:"hospital"`
 	jwt.StandardClaims
 }
 
 // GenerateJWT creates a new token for a user
 func GenerateJWT(user *models.User) (string, error) {
 	claims := CustomClaims{
-		Email:    user.Email,
-		System:   user.System,
-		Role:     user.Role,
-		Hospital: user.Hospital,
+		ID:        user.ID,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Email:     user.Email,
+		System:    user.System,
+		Role:      user.Role,
+		Hospital:  user.Hospital,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(), // Token valid for 24 hours
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(config.JWTSecrets[user.System]))
+
+	jwtSecret, err := config.GetJWTSecret(user.System, user.Hospital)
+	if err != nil {
+		log.Fatalf("Error retrieving JWT secret: %v", err)
+	}
+	// Continue with jwtSecret
+	return token.SignedString([]byte(jwtSecret))
 }
 
 // ValidateJWT checks if a token is valid
 func ValidateJWT(tokenStr string) (bool, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if claims, ok := token.Claims.(*CustomClaims); ok {
-			// Get the appropriate secret based on the system
-			return []byte(config.JWTSecrets[claims.System]), nil
+			jwtSecret, err := config.GetJWTSecret(claims.System, claims.Hospital)
+			if err != nil {
+				log.Fatalf("Error retrieving JWT secret: %v", err)
+			}
+			return []byte(jwtSecret), nil
 		}
 		return nil, errors.New("unable to parse token claims")
 	})
@@ -60,8 +76,11 @@ func RevokeToken(tokenStr string) error {
 func GetUserFromToken(tokenStr string) (*models.User, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if claims, ok := token.Claims.(*CustomClaims); ok {
-			// Get the appropriate secret based on the system
-			return []byte(config.JWTSecrets[claims.System]), nil
+			jwtSecret, err := config.GetJWTSecret(claims.System, claims.Hospital)
+			if err != nil {
+				log.Fatalf("Error retrieving JWT secret: %v", err)
+			}
+			return []byte(jwtSecret), nil
 		}
 		return nil, errors.New("unable to parse token claims")
 	})
@@ -72,10 +91,13 @@ func GetUserFromToken(tokenStr string) (*models.User, error) {
 
 	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
 		return &models.User{
-			Email:    claims.Email,
-			System:   claims.System,
-			Role:     claims.Role,
-			Hospital: claims.Hospital,
+			ID:        claims.ID,
+			FirstName: claims.FirstName,
+			LastName:  claims.LastName,
+			Email:     claims.Email,
+			System:    claims.System,
+			Role:      claims.Role,
+			Hospital:  claims.Hospital,
 		}, nil
 	}
 	return nil, errors.New("invalid token")

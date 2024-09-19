@@ -27,17 +27,19 @@ func InitDB() {
 }
 
 func CreateUser(user *models.User) error {
-	sql := `INSERT INTO users (username, password, system, role, hospital) VALUES ($1, $2, $3, $4, $5)`
-	_, err := db.Exec(sql, user.Email, user.Password, user.System, user.Role, user.Hospital, user.Status)
+	user.Status = "approved"
+	user.Role = "Admin"
+	sql := `INSERT INTO users (first_name, last_name, email, password, system, role, hospital, status) VALUES ($1, $2, $3, $4, $5, $6, $7)`
+	_, err := db.Exec(sql, user.FirstName, user.LastName, user.Email, user.Password, user.System, user.Role, user.Hospital, user.Status)
 	return err
 }
 
-func GetUserByUsername(username string) (*models.User, error) {
-	sql := `SELECT username, password, system, role, hospital FROM users WHERE username = $1`
-	row := db.QueryRow(sql, username)
+func GetUserByEmail(email string) (*models.User, error) {
+	sql := `SELECT first_name, last_name, email, password, system, role, hospital, status FROM users WHERE email = $1`
+	row := db.QueryRow(sql, email)
 
 	var user models.User
-	err := row.Scan(&user.Email, &user.Password, &user.System, &user.Role, &user.Hospital)
+	err := row.Scan(&user.FirstName, &user.LastName, &user.Email, &user.Password, &user.System, &user.Role, &user.Hospital, &user.Status)
 	if err != nil {
 		return nil, err
 	}
@@ -94,4 +96,58 @@ func DeclineUser(userID uint) error {
 
 	user.Status = "declined"
 	return SaveUser(user)
+}
+
+func GetUserRoles(userID int, system string) ([]string, error) {
+	sql := `
+        SELECT r.role_name
+        FROM user_roles ur
+        JOIN roles r ON ur.role_id = r.id
+        WHERE ur.user_id = $1 AND r.system = $2
+    `
+	rows, err := db.Query(sql, userID, system)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var roles []string
+	for rows.Next() {
+		var role string
+		err := rows.Scan(&role)
+		if err != nil {
+			return nil, err
+		}
+		roles = append(roles, role)
+	}
+
+	return roles, nil
+}
+
+func GetUserPermissions(userID int, system string) ([]string, error) {
+	sql := `
+        SELECT p.permission_name
+        FROM user_roles ur
+        JOIN roles r ON ur.role_id = r.id
+        JOIN role_permissions rp ON r.id = rp.role_id
+        JOIN permissions p ON rp.permission_id = p.id
+        WHERE ur.user_id = $1 AND r.system = $2
+    `
+	rows, err := db.Query(sql, userID, system)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var permissions []string
+	for rows.Next() {
+		var permission string
+		err := rows.Scan(&permission)
+		if err != nil {
+			return nil, err
+		}
+		permissions = append(permissions, permission)
+	}
+
+	return permissions, nil
 }

@@ -7,8 +7,8 @@ type User struct {
 	LastName  string `json:"lastName"`
 	Email     string `json:"email"`
 	Password  string `json:"-"`
-	System    int    `json:"system"`
+	System    string `json:"system"`
 	Role      string `json:"role"`
-	Hospital  int    `json:"hospital"`
+	Hospital  string `json:"hospital"`
 	Status    string `json:"status"` // 'pending', 'approved', or 'declined'
 }
