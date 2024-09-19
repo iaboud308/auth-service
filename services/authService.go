@@ -34,9 +34,9 @@ func CreateUser(user *models.User) error {
 	return err
 }
 
-func GetUserByEmail(email string) (*models.User, error) {
-	sql := `SELECT first_name, last_name, email, password, system, role, hospital, status FROM users WHERE email = $1`
-	row := db.QueryRow(sql, email)
+func GetUserByEmail(email string, hospital string) (*models.User, error) {
+	sql := `SELECT first_name, last_name, email, password, system, role, hospital, status FROM users WHERE email = $1 AND hospital = $2 AND status = 'approved'`
+	row := db.QueryRow(sql, email, hospital)
 
 	var user models.User
 	err := row.Scan(&user.FirstName, &user.LastName, &user.Email, &user.Password, &user.System, &user.Role, &user.Hospital, &user.Status)

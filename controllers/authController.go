@@ -43,15 +43,15 @@ func Register(w http.ResponseWriter, r *http.Request) {
 func Login(w http.ResponseWriter, r *http.Request) {
 	var credentials struct {
 		Email    string `json:"email"`
-		Password []byte `json:"password"`
-		System   int    `json:"system"`
-		Hospital int    `json:"hospital"`
+		Password string `json:"password"`
+		System   string `json:"system"`
+		Hospital string `json:"hospital"`
 	}
 
 	_ = json.NewDecoder(r.Body).Decode(&credentials)
 
 	// Retrieve the user from the database
-	user, err := services.GetUserByEmail(credentials.Email)
+	user, err := services.GetUserByEmail(credentials.Email, credentials.Hospital)
 
 	if err != nil {
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
@@ -60,8 +60,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	// Compare the password
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), credentials.Password)
-	log.Println(err)
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password))
+	log.Println("Login Controller", err)
 	if err != nil {
 		http.Error(w, "Invalid password", http.StatusUnauthorized)
 		return
