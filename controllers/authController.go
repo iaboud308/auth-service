@@ -20,13 +20,17 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
+		log.Println(err)
 		http.Error(w, "Error creating user", http.StatusInternalServerError)
 		return
 	}
 	user.Password = string(hashedPassword)
 
+	log.Println("Register Controller", user)
+
 	// Create user in the database
 	if err := services.CreateUser(&user); err != nil {
+		log.Println(err)
 		http.Error(w, "Failed to register user", http.StatusInternalServerError)
 		return
 	}
