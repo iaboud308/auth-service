@@ -7,9 +7,10 @@ services:
       context: .
     image: auth-service-i  # Image name
     ports:
-      - "5002:8081"  # Host port 5002 -> Container port 8081
+      - "5002:5002"  # Host port 5002 -> Container port 5002
     networks:
       - epma-network
+    restart: always
 
 networks:
   epma-network:

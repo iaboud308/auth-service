@@ -17,7 +17,7 @@ COPY . .
 RUN go build -o auth-service .
 
 # Expose the service on port 8081 (inside the container)
-EXPOSE 8081
+EXPOSE 5002
 
 # Start the application
 CMD ["./auth-service"]
