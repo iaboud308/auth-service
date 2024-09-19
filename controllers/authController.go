@@ -65,7 +65,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	// Compare the password
 
-	err = bcrypt.CompareHashAndPassword([]byte("12345"), []byte("12345"))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte("12345"))
 	log.Println("Login Controller", err)
 	if err != nil {
 		http.Error(w, "Invalid password", http.StatusUnauthorized)
