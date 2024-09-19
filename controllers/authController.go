@@ -15,18 +15,10 @@ import (
 // Handles user registration
 func Register(w http.ResponseWriter, r *http.Request) {
 	var user models.User
-
-	log.Println("Before decode: body", r.Body)
-	log.Println("Before decode: user", user)
-
 	_ = json.NewDecoder(r.Body).Decode(&user)
 
 	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-
-	log.Println("After decode: user", user)
-
-	log.Println("Hardcoded bcrypt hash:", string(hashedPassword))
 
 	if err != nil {
 		log.Println(err)
@@ -34,8 +26,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user.Password = string(hashedPassword)
-
-	log.Println("Register Controller", user)
 
 	// Create user in the database
 	if err := services.CreateUser(&user); err != nil {
@@ -83,8 +73,19 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var response models.LoginResponse
+	response.ID = user.ID
+	response.FirstName = user.FirstName
+	response.LastName = user.LastName
+	response.Email = user.Email
+	response.System = user.System
+	response.Role = user.Role
+	response.Hospital = user.Hospital
+	response.Status = user.Status
+	response.JWT = token
+
 	// Respond with the JWT token
-	json.NewEncoder(w).Encode(map[string]string{"token": token})
+	json.NewEncoder(w).Encode(map[string]models.LoginResponse{"User": response})
 }
 
 // Handles token validation
