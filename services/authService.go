@@ -33,7 +33,7 @@ func CreateUser(user *models.User) error {
 		return errors.New("user already exists")
 	}
 
-	user.Status = "approved"
+	user.Status = "pending"
 	sql := `INSERT INTO users (first_name, last_name, email, password, system, role, hospital, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
 	_, err := db.Exec(sql, user.FirstName, user.LastName, user.Email, user.Password, user.System, user.Role, user.Hospital, user.Status)
 	log.Println("CreateUser", err, user)
