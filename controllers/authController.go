@@ -58,6 +58,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Println("Plain password:", credentials.Password)
+	log.Println("Hashed password:", user.Password)
+
 	// Compare the password
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password))
