@@ -19,6 +19,8 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
+	log.Println("Hardcoded bcrypt hash:", string(hashedPassword))
+
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Error creating user", http.StatusInternalServerError)
