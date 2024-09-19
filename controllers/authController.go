@@ -15,10 +15,17 @@ import (
 // Handles user registration
 func Register(w http.ResponseWriter, r *http.Request) {
 	var user models.User
+
+	log.Println("Before decode: body", r.Body)
+	log.Println("Before decode: user", user)
+
 	_ = json.NewDecoder(r.Body).Decode(&user)
 
 	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+
+	log.Println("After decode: user", user)
+
 	log.Println("Hardcoded bcrypt hash:", string(hashedPassword))
 
 	if err != nil {
