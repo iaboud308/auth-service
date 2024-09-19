@@ -2,7 +2,7 @@
 
 
 # Use Go image to build the application
-FROM golang:1.17-alpine
+FROM golang:1.23
 
 WORKDIR /app
 
