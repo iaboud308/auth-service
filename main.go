@@ -17,7 +17,7 @@ func main() {
 	router := routes.SetupRouter()
 
 	// Allow CORS for localhost:3000 during development
-	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization", "X-System-Name", "X-Hospital-Name"})
 	originsOk := handlers.AllowedOrigins([]string{"http://localhost:3000", "https://localhost:3000"}) // Frontend URL in development
 	methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"})
 
