@@ -191,3 +191,51 @@ func DeclineUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("User declined"))
 }
+
+// GetUsersList retrieves users based on system and hospital from headers
+func GetUsersList(w http.ResponseWriter, r *http.Request) {
+	// Get system and hospital from headers
+	system := r.Header.Get("X-System-Name")
+	hospital := r.Header.Get("X-Hospital-Name")
+
+	// Check if headers are present
+	if system == "" || hospital == "" {
+		http.Error(w, "Missing system or hospital in headers", http.StatusBadRequest)
+		return
+	}
+
+	// Call the service function to retrieve users
+	users, err := services.GetUsersList(system, hospital)
+	if err != nil {
+		http.Error(w, "Failed to retrieve users", http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with the list of users
+	json.NewEncoder(w).Encode(users)
+}
+
+// DeleteUser deletes a user by their ID
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	// Get the user ID from the URL path
+	vars := mux.Vars(r)
+	userIDStr := vars["id"]
+
+	// Convert the userID from string to integer
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		return
+	}
+
+	// Call the service to delete the user
+	err = services.DeleteUser(userID)
+	if err != nil {
+		http.Error(w, "Failed to delete user", http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with success message
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("User deleted successfully"))
+}

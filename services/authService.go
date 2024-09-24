@@ -157,3 +157,47 @@ func GetUserPermissions(userID int, system string) ([]string, error) {
 
 	return permissions, nil
 }
+
+// GetUsersList retrieves users from the database for a specific system and hospital
+func GetUsersList(system string, hospital string) ([]models.LoginResponse, error) {
+	// Query the database to get users by system and hospital
+	sqlStatement := `SELECT id, first_name, last_name, email, role, hospital, status FROM users WHERE system = $1 AND hospital = $2`
+	rows, err := db.Query(sqlStatement, system, hospital)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Initialize slice to store users
+	var users []models.LoginResponse
+
+	// Loop through the result set
+	for rows.Next() {
+		var user models.LoginResponse
+		err := rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Role, &user.Hospital, &user.Status)
+		if err != nil {
+			return nil, err
+		}
+		user.Permsions, _ = GetUserPermissions(user.ID, system)
+		users = append(users, user)
+	}
+
+	// Check for errors during row iteration
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
+// DeleteUser removes a user from the database by their ID
+func DeleteUser(userID int) error {
+	sqlStatement := `DELETE FROM users WHERE id = $1`
+
+	_, err := db.Exec(sqlStatement, userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -17,6 +17,9 @@ func SetupRouter() *mux.Router {
 	router.HandleFunc("/auth/register", controllers.Register).Methods("POST")
 	router.HandleFunc("/auth/login", controllers.Login).Methods("POST")
 
+	router.HandleFunc("/auth/users", controllers.GetUsersList).Methods("GET")
+	router.HandleFunc("/auth/users/{id}", controllers.DeleteUser).Methods("DELETE")
+
 	// Token validation
 	router.HandleFunc("/auth/validate", controllers.ValidateToken).Methods("GET")
 
