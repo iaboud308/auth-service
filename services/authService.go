@@ -202,3 +202,34 @@ func DeleteUser(userID int) error {
 
 	return nil
 }
+
+func GetRolePermissions(role string) ([]string, error) {
+	// Query to get the permissions for the role
+	query := `SELECT permission FROM role_permissions WHERE role = $1`
+	rows, err := db.Query(query, role)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var permissions []string
+	for rows.Next() {
+		var permission string
+		if err := rows.Scan(&permission); err != nil {
+			return nil, err
+		}
+		permissions = append(permissions, permission)
+	}
+	return permissions, nil
+}
+
+func AssignPermissionsToUser(userID int, permissions []string) error {
+	for _, permission := range permissions {
+		query := `INSERT INTO user_permissions (user_id, permission) VALUES ($1, $2)`
+		_, err := db.Exec(query, userID, permission)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}

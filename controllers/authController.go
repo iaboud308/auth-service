@@ -34,6 +34,22 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get the permissions for the role
+	permissions, err := services.GetRolePermissions(user.Role)
+	if err != nil {
+		log.Println("Failed to get role permissions:", err)
+		http.Error(w, "Failed to assign permissions", http.StatusInternalServerError)
+		return
+	}
+
+	// Assign permissions to the user
+	err = services.AssignPermissionsToUser(user.ID, permissions)
+	if err != nil {
+		log.Println("Failed to assign permissions:", err)
+		http.Error(w, "Failed to assign permissions", http.StatusInternalServerError)
+		return
+	}
+
 	// Respond with success message
 	json.NewEncoder(w).Encode(map[string]string{"message": "User created"})
 }
