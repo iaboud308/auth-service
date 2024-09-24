@@ -204,8 +204,13 @@ func GetUsersList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Println("GetUsersList Controller System", system, "Hospital", hospital)
+
 	// Call the service function to retrieve users
 	users, err := services.GetUsersList(system, hospital)
+
+	log.Println("GetUsersList Controller Users", users, "Error", err)
+
 	if err != nil {
 		http.Error(w, "Failed to retrieve users", http.StatusInternalServerError)
 		return

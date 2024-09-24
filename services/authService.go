@@ -160,6 +160,7 @@ func GetUserPermissions(userID int, system string) ([]string, error) {
 
 // GetUsersList retrieves users from the database for a specific system and hospital
 func GetUsersList(system string, hospital string) ([]models.LoginResponse, error) {
+	log.Println("GetUsersList Service", system, hospital)
 	// Query the database to get users by system and hospital
 	sqlStatement := `SELECT id, first_name, last_name, email, role, hospital, status FROM users WHERE system = $1 AND hospital = $2`
 	rows, err := db.Query(sqlStatement, system, hospital)
