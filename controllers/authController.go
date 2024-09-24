@@ -66,6 +66,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get User Permissions
+	var permissions []string
+	permissions, err = services.GetUserPermissions(user.ID, user.System)
+	if err != nil {
+		http.Error(w, "Failed to get user permissions", http.StatusInternalServerError)
+		return
+	}
+
 	// Generate JWT token
 	token, err := services.GenerateJWT(user)
 	if err != nil {
@@ -83,6 +91,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	response.Hospital = user.Hospital
 	response.Status = user.Status
 	response.JWT = token
+	response.Permsions = permissions
 
 	// Respond with the JWT token
 	json.NewEncoder(w).Encode(map[string]models.LoginResponse{"User": response})
