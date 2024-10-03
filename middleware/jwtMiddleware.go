@@ -1,22 +1,19 @@
 package middleware
 
 import (
+	"auth-service/services"
 	"net/http"
-	"os"
-
-	"github.com/dgrijalva/jwt-go"
+	"strings"
 )
 
-var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
-
-func ValidateJWT(next http.Handler) http.Handler {
+// ValidateJWT middleware validates JWT tokens
+func ValidateJWT(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString := r.Header.Get("Authorization")
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			return jwtSecret, nil
-		})
+		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 
-		if err != nil || !token.Valid {
+		token, err := services.ValidateJWT(tokenString)
+		if err != nil || !token {
 			http.Error(w, "Invalid token", http.StatusUnauthorized)
 			return
 		}
