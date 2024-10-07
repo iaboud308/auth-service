@@ -9,16 +9,27 @@ import (
 	"net/http"
 )
 
-func LogEntry(action string, system string, hospital string, level string, message string, userId int, additionalData map[string]interface{}) {
+func LogEntry(action string, level string, message string, user models.User, additionalData map[string]interface{}) {
 	var logEntry models.LogEntry
 	logEntry.Action = action
-	logEntry.System = system
-	logEntry.Hospital = hospital
+	logEntry.System = user.System
+	logEntry.Hospital = user.Hospital
 	logEntry.Service = "auth-service"
 	logEntry.Level = level
 	logEntry.Message = message
-	logEntry.UserId = userId
-	logEntry.AdditionalData = additionalData
+	logEntry.UserId = user.ID
+	logEntry.AdditionalData = map[string]interface{}{
+		"Email":     user.Email,
+		"FirstName": user.FirstName,
+		"LastName":  user.LastName,
+		"RoleID":    user.RoleID,
+		"status":    user.Status,
+	}
+
+	// Merge additionalInfo into the log entry if provided
+	for key, value := range additionalData {
+		logEntry.AdditionalData[key] = value
+	}
 
 	// Serialize log entry to JSON
 	logJSON, err := json.Marshal(logEntry)

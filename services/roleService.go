@@ -68,3 +68,39 @@ func ValidateRoleID(roleID int) error {
 
 	return nil
 }
+
+// GetRolesBySystemAndHospital retrieves roles for a specific system and hospital
+func GetRolesBySystemAndHospital(system string, hospital string) ([]models.Role, error) {
+	sqlStatement := `
+        SELECT id, role_name, system, hospital
+        FROM roles
+        WHERE system = $1 AND hospital = $2;
+    `
+
+	rows, err := db.Query(sqlStatement, system, hospital)
+	if err != nil {
+		LogEntry("GetRolesBySystemAndHospital in rolesService", "error",
+			fmt.Sprintf("Error querying roles for system %s and hospital %s: %s", system, hospital, err.Error()), models.User{}, nil)
+		return nil, fmt.Errorf("failed to query roles for system %s and hospital %s: %w", system, hospital, err)
+	}
+	defer rows.Close()
+
+	var roles []models.Role
+	for rows.Next() {
+		var role models.Role
+		err := rows.Scan(&role.ID, &role.RoleName, &role.System, &role.Hospital)
+		if err != nil {
+			LogEntry("GetRolesBySystemAndHospital in rolesService", "error",
+				fmt.Sprintf("Error scanning role for system %s and hospital %s: %s", system, hospital, err.Error()), models.User{}, nil)
+			return nil, fmt.Errorf("failed to scan role for system %s and hospital %s: %w", system, hospital, err)
+		}
+		roles = append(roles, role)
+	}
+
+	LogEntry("GetRolesBySystemAndHospital in rolesService", "info",
+		fmt.Sprintf("Roles retrieved for system %s and hospital %s", system, hospital), models.User{}, map[string]interface{}{
+			"Roles": roles,
+		})
+
+	return roles, nil
+}
