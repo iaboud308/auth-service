@@ -12,8 +12,8 @@ import (
 func LogEntry(action string, level string, message string, user models.User, additionalData map[string]interface{}) {
 	var logEntry models.LogEntry
 	logEntry.Action = action
-	logEntry.System = user.System
-	logEntry.Hospital = user.Hospital
+	logEntry.System = config.SystemsList[user.SystemId].SystemCode
+	logEntry.Tenant = config.TenantsList[user.TenantId].TenantCode
 	logEntry.Service = "auth-service"
 	logEntry.Level = level
 	logEntry.Message = message

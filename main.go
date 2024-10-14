@@ -2,7 +2,6 @@ package main
 
 import (
 	"auth-service/routes"
-	"auth-service/services"
 	"log"
 	"net/http"
 
@@ -11,7 +10,7 @@ import (
 
 func main() {
 	// Initialize the database
-	services.InitDB()
+	// services.InitDB()
 
 	// Setup the router
 	router := routes.SetupRouter()

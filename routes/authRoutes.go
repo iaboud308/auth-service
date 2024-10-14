@@ -24,8 +24,9 @@ func SetupRouter() *mux.Router {
 	router.HandleFunc("/userinfo", middleware.ValidateJWT(controllers.GetUserInfo)).Methods("GET")
 
 	// Admin routes (require admin role)
-	router.HandleFunc("/user/approve/{userID}", middleware.RequireAdmin(controllers.ApproveUser)).Methods("POST")
-	router.HandleFunc("/user/decline/{userID}", middleware.RequireAdmin(controllers.DeclineUser)).Methods("POST")
+	router.HandleFunc("/user/activate/{userID}", middleware.RequireAdmin(controllers.ActivateUser)).Methods("POST")
+	router.HandleFunc("/user/deactivate/{userID}", middleware.RequireAdmin(controllers.DeactivateUser)).Methods("POST")
+
 	router.HandleFunc("/user/edit", middleware.RequireAdmin(controllers.EditUser)).Methods("PUT")
 	router.HandleFunc("/user/role", middleware.RequireAdmin(controllers.EditUserRole)).Methods("PUT")
 	router.HandleFunc("/user/permissions", middleware.RequireAdmin(controllers.EditUserPermissions)).Methods("PUT")
@@ -38,6 +39,14 @@ func SetupRouter() *mux.Router {
 
 	// Fetch all users for a specific system and hospital (requires admin)
 	router.HandleFunc("/users", middleware.RequireAdmin(controllers.GetUsersList)).Methods("GET")
+
+	// Role and Permissions Management
+	router.HandleFunc("/permissions", middleware.RequireAdmin(controllers.CreatePermission)).Methods("POST")
+	router.HandleFunc("/permissions/{id}", middleware.RequireAdmin(controllers.DeletePermission)).Methods("DELETE")
+	router.HandleFunc("/permissions", middleware.RequireAdmin(controllers.EditPermission)).Methods("PUT")
+	router.HandleFunc("/roles", middleware.RequireAdmin(controllers.CreateRole)).Methods("POST")
+	router.HandleFunc("/roles/{id}", middleware.RequireAdmin(controllers.DeleteRole)).Methods("DELETE")
+	router.HandleFunc("/roles", middleware.RequireAdmin(controllers.EditRole)).Methods("PUT")
 
 	return router
 }
