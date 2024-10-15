@@ -128,7 +128,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve the user from the database
 	user, err := services.GetUserByEmail(credentials.Email, credentials.SystemId, credentials.TenantId)
-	if err != nil || user.Status != "approved" {
+	if err != nil || user.Status != "active" {
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 		services.LogEntry("Login", "error", "Invalid username or password", models.User{
 			Email:    credentials.Email,
