@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"sync"
 	"time"
+
+	_ "github.com/lib/pq"
 )
 
 var dbPool = make(map[string]*sql.DB)
