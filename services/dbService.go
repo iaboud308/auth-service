@@ -156,7 +156,7 @@ func InsertRow(executor interface{}, query string, args []interface{}, logInfo m
 	}
 
 	LogEntry(logInfo.Action, "info", "Insert executed successfully", logInfo.User, logInfo.AdditionalData)
-	return 0, nil
+	return rowsAffected, nil
 }
 
 // Example Update function
@@ -185,7 +185,7 @@ func UpdateRow(executor interface{}, query string, args []interface{}, logInfo m
 	}
 
 	LogEntry(logInfo.Action, "info", fmt.Sprintf("%d rows affected", rowsAffected), logInfo.User, logInfo.AdditionalData)
-	return 0, nil
+	return rowsAffected, nil
 }
 
 // DeleteRow function that deletes a row from the specified table
