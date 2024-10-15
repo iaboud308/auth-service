@@ -145,14 +145,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get User Role
-	role, err := services.GetUserRole(user.RoleID, user.SystemId, user.TenantId)
+	role, err := services.GetUserRole(user.RoleID, credentials.SystemId, credentials.TenantId)
 	if err != nil {
 		http.Error(w, "Failed to get user role", http.StatusInternalServerError)
 		services.LogEntry("Login", "error", "Failed to retrieve user role: "+err.Error(), *user, nil)
 		return
 	}
 
-	userWards, err := services.GetUserWards(user.ID, user.SystemId, user.TenantId)
+	userWards, err := services.GetUserWards(user.ID, credentials.SystemId, credentials.TenantId)
 	if err != nil {
 		http.Error(w, "Failed to get user wards", http.StatusInternalServerError)
 		services.LogEntry("Login", "error", "Failed to retrieve user wards: "+err.Error(), *user, map[string]interface{}{
@@ -162,7 +162,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get User Permissions
-	permissions, err := services.GetUserPermissions(user.ID, user.SystemId, user.TenantId)
+	permissions, err := services.GetUserPermissions(user.ID, credentials.SystemId, credentials.TenantId)
 	if err != nil {
 		http.Error(w, "Failed to get user permissions", http.StatusInternalServerError)
 		services.LogEntry("Login", "error", "Failed to retrieve user permissions: "+err.Error(), *user, map[string]interface{}{
@@ -172,7 +172,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	wardPermissions, err := services.GetUserWardPermissions(user.ID, user.SystemId, user.TenantId)
+	wardPermissions, err := services.GetUserWardPermissions(user.ID, credentials.SystemId, credentials.TenantId)
 	if err != nil {
 		http.Error(w, "Failed to get user ward permissions", http.StatusInternalServerError)
 		services.LogEntry("Login", "error", "Failed to retrieve user ward permissions: "+err.Error(), *user, map[string]interface{}{
@@ -199,9 +199,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		FirstName:           user.FirstName,
 		LastName:            user.LastName,
 		Email:               user.Email,
-		System:              config.SystemsList[user.SystemId].SystemCode,
+		System:              config.SystemsList[credentials.SystemId].SystemCode,
 		Role:                role.RoleName,
-		Tenant:              config.TenantsList[user.TenantId].TenantCode,
+		Tenant:              config.TenantsList[credentials.TenantId].TenantCode,
 		Status:              user.Status,
 		Permissions:         permissions,
 		JWT:                 token,
