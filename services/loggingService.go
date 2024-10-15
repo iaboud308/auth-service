@@ -61,7 +61,7 @@ func SaveLogEntry(logJSON []byte) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusCreated {
 		fmt.Printf("Failed to send log. Status code: %d\n", resp.StatusCode)
 	}
 
