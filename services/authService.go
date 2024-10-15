@@ -50,7 +50,7 @@ func GetUserByEmail(email string, systemId int, tenantId int) (*models.User, err
 	}
 
 	var user models.User
-	_, err = GetSingleRow(db, sqlStatement, []interface{}{email}, []interface{}{
+	rowCount, err := GetSingleRow(db, sqlStatement, []interface{}{email}, []interface{}{
 		&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Password, &user.RoleID, &user.Status,
 	}, models.LogInfo{
 		Action:  "GetUserByEmail in authService - GetSingleRow",
@@ -64,6 +64,10 @@ func GetUserByEmail(email string, systemId int, tenantId int) (*models.User, err
 
 	if err != nil {
 		return nil, err
+	}
+
+	if rowCount == 0 {
+		return nil, nil
 	}
 
 	return &user, nil

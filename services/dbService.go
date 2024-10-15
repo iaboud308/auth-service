@@ -75,7 +75,6 @@ func GetSingleRow(executor interface{}, query string, args []interface{}, data [
 	if err != nil {
 		if err == sql.ErrNoRows {
 			LogEntry(logInfo.Action, "info", "No rows found", logInfo.User, logInfo.AdditionalData)
-			data = nil
 			return 0, nil
 		}
 		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error executing query: %s", err.Error()), logInfo.User, logInfo.AdditionalData)
