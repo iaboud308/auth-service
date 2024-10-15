@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -38,8 +39,6 @@ func LogEntry(action string, level string, message string, user models.User, add
 		return
 	}
 
-	// Print log entry
-	fmt.Println("Log entry: ", string(logJSON))
 	SaveLogEntry(logJSON)
 }
 
@@ -51,6 +50,8 @@ func SaveLogEntry(logJSON []byte) {
 		fmt.Println("Error creating request to logging service:", err)
 		return
 	}
+
+	log.Println("Sending log to logging service: ", req)
 
 	req.Header.Set("Content-Type", "application/json")
 
