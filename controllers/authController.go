@@ -56,7 +56,9 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 	if existingUser != nil {
 		http.Error(w, "User already exists", http.StatusConflict)
-		services.LogEntry("Register in auth controller", "error", "User already exists", user, nil)
+		services.LogEntry("Register in auth controller", "error", "User already exists", user, map[string]interface{}{
+			"ExistingUser": existingUser,
+		})
 		return
 	}
 
