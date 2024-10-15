@@ -74,6 +74,12 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	services.LogEntry("Register in auth controller - Before assigning default permissions", "info", "User created successfully", user, map[string]interface{}{
+		"UserId": user.ID,
+		"system": config.SystemsList[user.SystemId].SystemCode,
+		"tenant": config.TenantsList[user.TenantId].TenantCode,
+	})
+
 	// Assign default permissions based on role
 	if err := services.AssignDefaultPermissions(&user); err != nil {
 		http.Error(w, "Failed to assign default permissions", http.StatusInternalServerError)
