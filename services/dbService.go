@@ -74,14 +74,14 @@ func GetSingleRow(executor interface{}, query string, args []interface{}, data [
 	err := scanRow(row, data)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			LogEntry(logInfo.Action, "info", "No rows found", logInfo.User, nil)
+			LogEntry(logInfo.Action, "info", "No rows found", logInfo.User, logInfo.AdditionalData)
 			return 0, nil
 		}
-		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error executing query: %s", err.Error()), logInfo.User, nil)
+		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error executing query: %s", err.Error()), logInfo.User, logInfo.AdditionalData)
 		return 0, err
 	}
 
-	LogEntry(logInfo.Action, "info", "Query executed successfully", logInfo.User, nil)
+	LogEntry(logInfo.Action, "info", "Query executed successfully", logInfo.User, logInfo.AdditionalData)
 	return 1, nil
 }
 
@@ -100,7 +100,7 @@ func GetMultipleRows(executor interface{}, query string, args []interface{}, dat
 	}
 
 	if err != nil {
-		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error executing query: %s", err.Error()), logInfo.User, nil)
+		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error executing query: %s", err.Error()), logInfo.User, logInfo.AdditionalData)
 		return 0, err
 	}
 	defer rows.Close()
@@ -109,7 +109,7 @@ func GetMultipleRows(executor interface{}, query string, args []interface{}, dat
 
 	for rows.Next() {
 		if err := scanRows(rows, data); err != nil {
-			LogEntry(logInfo.Action, "error", fmt.Sprintf("Error scanning rows: %s", err.Error()), logInfo.User, nil)
+			LogEntry(logInfo.Action, "error", fmt.Sprintf("Error scanning rows: %s", err.Error()), logInfo.User, logInfo.AdditionalData)
 			return 0, err
 		}
 
@@ -117,16 +117,16 @@ func GetMultipleRows(executor interface{}, query string, args []interface{}, dat
 	}
 
 	if err := rows.Err(); err != nil {
-		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error iterating over rows: %s", err.Error()), logInfo.User, nil)
+		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error iterating over rows: %s", err.Error()), logInfo.User, logInfo.AdditionalData)
 		return rowCount, err
 	}
 
 	if rowCount == 0 {
-		LogEntry(logInfo.Action, "info", "No rows found", logInfo.User, nil)
+		LogEntry(logInfo.Action, "info", "No rows found", logInfo.User, logInfo.AdditionalData)
 		return 0, nil
 	}
 
-	LogEntry(logInfo.Action, "info", logInfo.Message+" successfully", logInfo.User, nil)
+	LogEntry(logInfo.Action, "info", logInfo.Message+" successfully", logInfo.User, logInfo.AdditionalData)
 	return rowCount, nil
 }
 
@@ -145,17 +145,17 @@ func InsertRow(executor interface{}, query string, args []interface{}, logInfo m
 	}
 
 	if err != nil {
-		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error executing insert: %s", err.Error()), logInfo.User, nil)
+		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error executing insert: %s", err.Error()), logInfo.User, logInfo.AdditionalData)
 		return 0, err
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil || rowsAffected == 0 {
-		LogEntry(logInfo.Action, "error", "Insert failed or no rows affected", logInfo.User, nil)
+		LogEntry(logInfo.Action, "error", "Insert failed or no rows affected", logInfo.User, logInfo.AdditionalData)
 		return 0, fmt.Errorf("no rows affected")
 	}
 
-	LogEntry(logInfo.Action, "info", "Insert executed successfully", logInfo.User, nil)
+	LogEntry(logInfo.Action, "info", "Insert executed successfully", logInfo.User, logInfo.AdditionalData)
 	return 0, nil
 }
 
@@ -174,17 +174,17 @@ func UpdateRow(executor interface{}, query string, args []interface{}, logInfo m
 	}
 
 	if err != nil {
-		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error executing update: %s", err.Error()), logInfo.User, nil)
+		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error executing update: %s", err.Error()), logInfo.User, logInfo.AdditionalData)
 		return 0, err
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil || rowsAffected == 0 {
-		LogEntry(logInfo.Action, "error", "Update failed or no rows affected", logInfo.User, nil)
+		LogEntry(logInfo.Action, "error", "Update failed or no rows affected", logInfo.User, logInfo.AdditionalData)
 		return 0, fmt.Errorf("no rows affected")
 	}
 
-	LogEntry(logInfo.Action, "info", fmt.Sprintf("%d rows affected", rowsAffected), logInfo.User, nil)
+	LogEntry(logInfo.Action, "info", fmt.Sprintf("%d rows affected", rowsAffected), logInfo.User, logInfo.AdditionalData)
 	return 0, nil
 }
 
@@ -204,21 +204,21 @@ func DeleteRow(executor interface{}, query string, args []interface{}, logInfo m
 	}
 
 	if err != nil {
-		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error executing delete: %s", err.Error()), logInfo.User, nil)
+		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error executing delete: %s", err.Error()), logInfo.User, logInfo.AdditionalData)
 		return 0, err
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error getting rows affected: %s", err.Error()), logInfo.User, nil)
+		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error getting rows affected: %s", err.Error()), logInfo.User, logInfo.AdditionalData)
 		return 0, err
 	}
 
 	if rowsAffected == 0 {
-		LogEntry(logInfo.Action, "info", "No rows were deleted", logInfo.User, nil)
+		LogEntry(logInfo.Action, "info", "No rows were deleted", logInfo.User, logInfo.AdditionalData)
 		return 0, nil
 	}
 
-	LogEntry(logInfo.Action, "info", fmt.Sprintf("%d rows deleted successfully", rowsAffected), logInfo.User, nil)
+	LogEntry(logInfo.Action, "info", fmt.Sprintf("%d rows deleted successfully", rowsAffected), logInfo.User, logInfo.AdditionalData)
 	return rowsAffected, nil
 }
