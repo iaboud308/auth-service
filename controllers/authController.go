@@ -25,12 +25,8 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	services.LogEntry("Register in auth controller", "info", "User registration initiated", user, map[string]interface{}{
-		"systemId":         user.SystemId,
-		"systemName":       config.SystemsList[user.SystemId].SystemCode,
-		"tenantId":         user.TenantId,
-		"tenantName":       config.TenantsList[user.TenantId].TenantCode,
-		"SystemTenantKey":  config.SystemTenant{SystemId: user.SystemId, TenantId: user.TenantId},
-		"ConnectionString": config.ConnectionMap[config.SystemTenant{SystemId: user.SystemId, TenantId: user.TenantId}],
+		"systemId": user.SystemId,
+		"tenantId": user.TenantId,
 	})
 
 	// Validate required fields
