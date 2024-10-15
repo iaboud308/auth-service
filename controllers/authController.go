@@ -158,7 +158,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		services.LogEntry("Login", "error", "Failed to retrieve user wards: "+err.Error(), *user, map[string]interface{}{
 			"Role": role.RoleName,
 		})
-		return
+		// return
 	}
 
 	// Get User Permissions
@@ -179,7 +179,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			"Role":  role.RoleName,
 			"Wards": userWards,
 		})
-		return
+		// return
 	}
 
 	// Generate JWT token
