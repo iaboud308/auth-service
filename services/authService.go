@@ -53,7 +53,7 @@ func GetUserByEmail(email string, systemId int, tenantId int) (*models.User, err
 	_, err = GetSingleRow(db, sqlStatement, []interface{}{email}, []interface{}{
 		&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Password, &user.RoleID, &user.Status,
 	}, models.LogInfo{
-		Action:  "GetUserByEmail",
+		Action:  "GetUserByEmail in authService - GetSingleRow",
 		Message: fmt.Sprintf("Retrieving user with email %s", email),
 		User: models.User{
 			Email:    email,

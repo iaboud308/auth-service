@@ -3,7 +3,7 @@ package models
 type LogEntry struct {
 	Action         string                 `json:"action"`
 	System         string                 `json:"system"`
-	Tenant         string                 `json:"hospital"`
+	Tenant         string                 `json:"tenant"`
 	Service        string                 `json:"service"`
 	Level          string                 `json:"level"`
 	Message        string                 `json:"message"`
