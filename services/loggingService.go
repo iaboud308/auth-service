@@ -38,6 +38,8 @@ func LogEntry(action string, level string, message string, user models.User, add
 		return
 	}
 
+	// Print log entry
+	fmt.Println("Log entry: ", string(logJSON))
 	SaveLogEntry(logJSON)
 }
 
