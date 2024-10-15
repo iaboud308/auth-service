@@ -67,17 +67,17 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 	user.Password = string(hashedPassword)
 
-	// Assign default permissions based on role
-	if err := services.AssignDefaultPermissions(&user); err != nil {
-		http.Error(w, "Failed to assign default permissions", http.StatusInternalServerError)
-		services.LogEntry("Register in auth controller", "error", "Failed to assign default permissions: "+err.Error(), user, nil)
-		return
-	}
-
 	// Create user in the database
 	if err := services.CreateUser(&user); err != nil {
 		http.Error(w, "Error creating user", http.StatusInternalServerError)
 		services.LogEntry("Register in auth controller", "error", "Failed to create user: "+err.Error(), user, nil)
+		return
+	}
+
+	// Assign default permissions based on role
+	if err := services.AssignDefaultPermissions(&user); err != nil {
+		http.Error(w, "Failed to assign default permissions", http.StatusInternalServerError)
+		services.LogEntry("Register in auth controller", "error", "Failed to assign default permissions: "+err.Error(), user, nil)
 		return
 	}
 
