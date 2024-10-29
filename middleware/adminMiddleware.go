@@ -20,8 +20,8 @@ func RequireAdmin(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		// Check if the user's role is "Admin"
-		if user.Role != "Admin" {
+		// Check if the user's role is "Admin" or "SuperAdmin"
+		if user.Role != "Admin" && user.Role != "SuperAdmin" {
 			http.Error(w, "Forbidden: Admin access only", http.StatusForbidden)
 			return
 		}

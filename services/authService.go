@@ -236,21 +236,27 @@ func AssignDefaultPermissions(user *models.User) error {
 
 // GetUsersList retrieves a list of users by system and tenant
 func GetUsersList(systemId int, tenantId int) ([]models.AuthResponse, error) {
+	// sqlStatement := `
+	// 	SELECT u.id, u.first_name, u.last_name, u.email, u.status, r.role_name,
+	// 	       array_agg(DISTINCT p.permission_name) AS permissions,
+	// 	       array_agg(DISTINCT w.ward_name) AS wards,
+	// 	       array_agg(DISTINCT wp.permission_name) AS ward_permissions
+	// 	FROM users u
+	// 	INNER JOIN roles r ON u.role_id = r.id
+	// 	LEFT JOIN user_permissions up ON u.id = up.user_id
+	// 	LEFT JOIN permissions p ON up.permission_id = p.id
+	// 	LEFT JOIN user_wards uw ON u.id = uw.user_id
+	// 	LEFT JOIN wards w ON uw.ward_id = w.id
+	// 	LEFT JOIN user_ward_permissions uwp ON uw.id = uwp.user_ward_id
+	// 	LEFT JOIN permissions wp ON uwp.permission_id = wp.id
+	// 	GROUP BY u.id, r.role_name
+	// `
+
 	sqlStatement := `
-		SELECT u.id, u.first_name, u.last_name, u.email, u.status, r.role_name, 
-		       array_agg(DISTINCT p.permission_name) AS permissions, 
-		       array_agg(DISTINCT w.ward_name) AS wards,
-		       array_agg(DISTINCT wp.permission_name) AS ward_permissions
-		FROM users u
-		INNER JOIN roles r ON u.role_id = r.id
-		LEFT JOIN user_permissions up ON u.id = up.user_id
-		LEFT JOIN permissions p ON up.permission_id = p.id
-		LEFT JOIN user_wards uw ON u.id = uw.user_id
-		LEFT JOIN wards w ON uw.ward_id = w.id
-		LEFT JOIN user_ward_permissions uwp ON uw.id = uwp.user_ward_id
-		LEFT JOIN permissions wp ON uwp.permission_id = wp.id
-		GROUP BY u.id, r.role_name
-	`
+    SELECT u.id, u.first_name, u.last_name, u.email, u.status, r.role_name
+    FROM users u
+    INNER JOIN roles r ON u.role_id = r.id
+`
 
 	db, err := GetDBConnection(systemId, tenantId)
 	if err != nil {

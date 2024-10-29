@@ -173,34 +173,15 @@ func GetUserFromToken(tokenStr string) (*models.AuthResponse, error) {
 		return nil, errors.New("invalid token")
 	}
 
-	// Retrieve system and tenant IDs based on claims
-	systemId, err := config.GetSystemId(claims.System)
-	if err != nil {
-		LogEntry("GetUserFromToken in jwtService", "error", "Failed to retrieve system ID: "+err.Error(),
-			models.User{}, map[string]interface{}{
-				"System": claims.System,
-			})
-		return nil, fmt.Errorf("failed to retrieve system ID: %w", err)
-	}
-
-	tenantId, err := config.GetTenantId(claims.Tenant)
-	if err != nil {
-		LogEntry("GetUserFromToken in jwtService", "error", "Failed to retrieve tenant ID: "+err.Error(),
-			models.User{}, map[string]interface{}{
-				"Tenant": claims.Tenant,
-			})
-		return nil, fmt.Errorf("failed to retrieve tenant ID: %w", err)
-	}
-
 	// Fetch user permissions
-	permissions, err := GetUserPermissions(claims.ID, systemId, tenantId)
-	if err != nil {
-		LogEntry("GetUserFromToken in jwtService", "error", "Failed to retrieve permissions: "+err.Error(),
-			models.User{}, map[string]interface{}{
-				"UserID": claims.ID,
-			})
-		return nil, fmt.Errorf("failed to retrieve permissions: %w", err)
-	}
+	// permissions, err := GetUserPermissions(claims.ID, systemId, tenantId)
+	// if err != nil {
+	// 	LogEntry("GetUserFromToken in jwtService", "error", "Failed to retrieve permissions: "+err.Error(),
+	// 		models.User{}, map[string]interface{}{
+	// 			"UserID": claims.ID,
+	// 		})
+	// 	return nil, fmt.Errorf("failed to retrieve permissions: %w", err)
+	// }
 
 	// Construct the AuthResponse based on claims
 	authResponse := &models.AuthResponse{
@@ -211,7 +192,7 @@ func GetUserFromToken(tokenStr string) (*models.AuthResponse, error) {
 		System:      claims.System,
 		Role:        claims.Role,
 		Tenant:      claims.Tenant,
-		Permissions: permissions,
+		Permissions: []models.Permission{},
 	}
 
 	// Log successful token parsing and user extraction
