@@ -137,6 +137,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	services.LogEntry("Login: Retrieved user from database", "info", "User retrieved from database", *user, map[string]interface{}{
+		"SystemId": user.SystemId,
+		"TenantId": user.TenantId,
+		"UserId":   user.ID,
+	})
+
 	// Compare the password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password)); err != nil {
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)

@@ -43,7 +43,7 @@ func GenerateJWT(user *models.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// Fetch the JWT secret for the system and hospital
-	jwtSecret, err := config.GetJWTSecret(claims.System, claims.Tenant)
+	jwtSecret, err := config.GetJWTSecret(user.SystemId, user.TenantId)
 	if err != nil {
 		LogEntry("GenerateJWT in jwtService", "error",
 			fmt.Sprintf("Failed to retrieve JWT secret for user ID %d: %s", user.ID, err.Error()), *user, nil)
@@ -77,7 +77,9 @@ func ValidateJWT(tokenStr string) (bool, error) {
 		}
 
 		// Get the secret key for the system and hospital
-		jwtSecret, err := config.GetJWTSecret(claims.System, claims.Tenant)
+		var systemId, _ = config.GetSystemId(claims.System)
+		var tenantId, _ = config.GetTenantId(claims.Tenant)
+		jwtSecret, err := config.GetJWTSecret(systemId, tenantId)
 		if err != nil {
 			LogEntry("ValidateJWT in jwtService", "error", "Failed to retrieve JWT secret: "+err.Error(), models.User{}, map[string]interface{}{
 				"System": claims.System,
@@ -140,7 +142,9 @@ func GetUserFromToken(tokenStr string) (*models.AuthResponse, error) {
 		}
 
 		// Retrieve JWT secret using system and tenant from claims
-		jwtSecret, err := config.GetJWTSecret(claims.System, claims.Tenant)
+		var systemId, _ = config.GetSystemId(claims.System)
+		var tenantId, _ = config.GetTenantId(claims.Tenant)
+		jwtSecret, err := config.GetJWTSecret(systemId, tenantId)
 		if err != nil {
 			LogEntry("GetUserFromToken in jwtService", "error", "Failed to retrieve JWT secret: "+err.Error(), models.User{}, map[string]interface{}{
 				"System": claims.System,
