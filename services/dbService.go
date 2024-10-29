@@ -55,8 +55,53 @@ func scanRow(row *sql.Row, data []interface{}) error {
 }
 
 // Dynamic Column Scanning for multiple rows
-func scanRows(rows *sql.Rows, data []interface{}) error {
-	return rows.Scan(data...)
+// func scanRows(rows *sql.Rows, data []interface{}) error {
+// 	return rows.Scan(data...)
+// }
+
+// GetMultipleRows for any table with dynamic columns
+func GetMultipleRows(executor interface{}, query string, args []interface{}, data []interface{}, logInfo models.LogInfo) (int, error) {
+	var rows *sql.Rows
+	var err error
+
+	switch ex := executor.(type) {
+	case *sql.DB:
+		rows, err = ex.Query(query, args...)
+	case *sql.Tx:
+		rows, err = ex.Query(query, args...)
+	default:
+		return 0, fmt.Errorf("unsupported executor type: %T", executor)
+	}
+
+	if err != nil {
+		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error executing query: %s", err.Error()), logInfo.User, logInfo.AdditionalData)
+		return 0, err
+	}
+	defer rows.Close()
+
+	var rowCount int
+
+	for rows.Next() {
+		if err := rows.Scan(data...); err != nil {
+			LogEntry(logInfo.Action, "error", fmt.Sprintf("Error scanning rows: %s", err.Error()), logInfo.User, logInfo.AdditionalData)
+			return 0, err
+		}
+
+		rowCount++
+	}
+
+	if err := rows.Err(); err != nil {
+		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error iterating over rows: %s", err.Error()), logInfo.User, logInfo.AdditionalData)
+		return rowCount, err
+	}
+
+	if rowCount == 0 {
+		LogEntry(logInfo.Action, "info", "No rows found", logInfo.User, logInfo.AdditionalData)
+		return 0, nil
+	}
+
+	LogEntry(logInfo.Action, "info", logInfo.Message+" successfully", logInfo.User, logInfo.AdditionalData)
+	return rowCount, nil
 }
 
 // Example Get function for retrieving a single row without reflection
@@ -83,51 +128,6 @@ func GetSingleRow(executor interface{}, query string, args []interface{}, data [
 
 	LogEntry(logInfo.Action, "info", "Query executed successfully", logInfo.User, logInfo.AdditionalData)
 	return 1, nil
-}
-
-// GetMultipleRows for any table with dynamic columns
-func GetMultipleRows(executor interface{}, query string, args []interface{}, data []interface{}, logInfo models.LogInfo) (int, error) {
-	var rows *sql.Rows
-	var err error
-
-	switch ex := executor.(type) {
-	case *sql.DB:
-		rows, err = ex.Query(query, args...)
-	case *sql.Tx:
-		rows, err = ex.Query(query, args...)
-	default:
-		return 0, fmt.Errorf("unsupported executor type: %T", executor)
-	}
-
-	if err != nil {
-		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error executing query: %s", err.Error()), logInfo.User, logInfo.AdditionalData)
-		return 0, err
-	}
-	defer rows.Close()
-
-	var rowCount int
-
-	for rows.Next() {
-		if err := scanRows(rows, data); err != nil {
-			LogEntry(logInfo.Action, "error", fmt.Sprintf("Error scanning rows: %s", err.Error()), logInfo.User, logInfo.AdditionalData)
-			return 0, err
-		}
-
-		rowCount++
-	}
-
-	if err := rows.Err(); err != nil {
-		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error iterating over rows: %s", err.Error()), logInfo.User, logInfo.AdditionalData)
-		return rowCount, err
-	}
-
-	if rowCount == 0 {
-		LogEntry(logInfo.Action, "info", "No rows found", logInfo.User, logInfo.AdditionalData)
-		return 0, nil
-	}
-
-	LogEntry(logInfo.Action, "info", logInfo.Message+" successfully", logInfo.User, logInfo.AdditionalData)
-	return rowCount, nil
 }
 
 // Example Insert function
