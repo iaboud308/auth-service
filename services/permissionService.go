@@ -1,94 +1,93 @@
 package services
 
 import (
-	"auth-service/config"
 	"auth-service/models"
 	"fmt"
 )
 
 // GetUserPermissions retrieves the general permissions associated with a user
-func GetUserPermissions(userID int, systemId int, tenantId int) ([]models.Permission, error) {
-	// SQL query to fetch permissions for the user
-	sqlStatement := `
-        SELECT p.permission_name
-        FROM user_permissions up
-        JOIN permissions p ON up.permission_id = p.id
-        WHERE up.user_id = $1
-    `
+// func GetUserPermissions(userID int, systemId int, tenantId int) ([]models.Permission, error) {
+// 	// SQL query to fetch permissions for the user
+// 	sqlStatement := `
+//         SELECT p.permission_name
+//         FROM user_permissions up
+//         JOIN permissions p ON up.permission_id = p.id
+//         WHERE up.user_id = $1
+//     `
 
-	// Log the initial state
-	LogEntry("GetUserPermissions", "info", "Fetching permissions for user", models.User{
-		ID: userID,
-	}, map[string]interface{}{
-		"systemId": systemId,
-		"tenantId": tenantId,
-	})
+// 	// Log the initial state
+// 	LogEntry("GetUserPermissions", "info", "Fetching permissions for user", models.User{
+// 		ID: userID,
+// 	}, map[string]interface{}{
+// 		"systemId": systemId,
+// 		"tenantId": tenantId,
+// 	})
 
-	// Get database connection
-	db, err := GetDBConnection(systemId, tenantId)
-	if err != nil {
-		LogEntry("GetUserPermissions", "error", fmt.Sprintf("Error getting database connection: %s", err.Error()), models.User{
-			ID: userID,
-		}, map[string]interface{}{
-			"systemId": systemId,
-			"tenantId": tenantId,
-		})
-		return nil, fmt.Errorf("failed to get database connection: %w", err)
-	}
+// 	// Get database connection
+// 	db, err := GetDBConnection(systemId, tenantId)
+// 	if err != nil {
+// 		LogEntry("GetUserPermissions", "error", fmt.Sprintf("Error getting database connection: %s", err.Error()), models.User{
+// 			ID: userID,
+// 		}, map[string]interface{}{
+// 			"systemId": systemId,
+// 			"tenantId": tenantId,
+// 		})
+// 		return nil, fmt.Errorf("failed to get database connection: %w", err)
+// 	}
 
-	var permissions []models.Permission
-	var permission models.Permission
+// 	var permissions []models.Permission
+// 	var permission models.Permission
 
-	// Use helper function to retrieve multiple rows
-	rowCount, err := GetMultipleRows(db, sqlStatement, []interface{}{userID}, []interface{}{&permissions}, []interface{}{
-		&permission.ID,
-		&permission.PermissionName,
-	}, models.LogInfo{
-		Action:  "GetUserPermissions - Fetch",
-		Message: fmt.Sprintf("Attempting to fetch permissions for user ID %d", userID),
-		User: models.User{
-			ID: userID,
-		},
-		AdditionalData: map[string]interface{}{
-			"systemId": systemId,
-			"tenantId": tenantId,
-		},
-	})
+// 	// Use helper function to retrieve multiple rows
+// 	rowCount, err := GetMultipleRows(db, sqlStatement, []interface{}{userID}, []interface{}{&permissions}, []interface{}{
+// 		&permission.ID,
+// 		&permission.PermissionName,
+// 	}, models.LogInfo{
+// 		Action:  "GetUserPermissions - Fetch",
+// 		Message: fmt.Sprintf("Attempting to fetch permissions for user ID %d", userID),
+// 		User: models.User{
+// 			ID: userID,
+// 		},
+// 		AdditionalData: map[string]interface{}{
+// 			"systemId": systemId,
+// 			"tenantId": tenantId,
+// 		},
+// 	})
 
-	// Error handling for the query
-	if err != nil {
-		LogEntry("GetUserPermissions", "error",
-			fmt.Sprintf("Error querying permissions for user ID %d: %s", userID, err.Error()), models.User{
-				ID: userID,
-			}, map[string]interface{}{
-				"systemId": systemId,
-				"tenantId": tenantId,
-			})
-		return nil, fmt.Errorf("failed to query permissions for user ID %d: %w", userID, err)
-	}
+// 	// Error handling for the query
+// 	if err != nil {
+// 		LogEntry("GetUserPermissions", "error",
+// 			fmt.Sprintf("Error querying permissions for user ID %d: %s", userID, err.Error()), models.User{
+// 				ID: userID,
+// 			}, map[string]interface{}{
+// 				"systemId": systemId,
+// 				"tenantId": tenantId,
+// 			})
+// 		return nil, fmt.Errorf("failed to query permissions for user ID %d: %w", userID, err)
+// 	}
 
-	// Handle case when no permissions are found
-	if rowCount == 0 {
-		LogEntry("GetUserPermissions", "warning", fmt.Sprintf("No permissions found for user ID %d", userID), models.User{
-			ID: userID,
-		}, map[string]interface{}{
-			"systemId": systemId,
-			"tenantId": tenantId,
-		})
-		return nil, fmt.Errorf("no permissions found for user ID %d", userID)
-	}
+// 	// Handle case when no permissions are found
+// 	if rowCount == 0 {
+// 		LogEntry("GetUserPermissions", "warning", fmt.Sprintf("No permissions found for user ID %d", userID), models.User{
+// 			ID: userID,
+// 		}, map[string]interface{}{
+// 			"systemId": systemId,
+// 			"tenantId": tenantId,
+// 		})
+// 		return nil, fmt.Errorf("no permissions found for user ID %d", userID)
+// 	}
 
-	// Log the success case
-	LogEntry("GetUserPermissions", "info", fmt.Sprintf("Permissions successfully retrieved for user ID %d", userID), models.User{
-		ID: userID,
-	}, map[string]interface{}{
-		"permissions": permissions,
-		"systemId":    systemId,
-		"tenantId":    tenantId,
-	})
+// 	// Log the success case
+// 	LogEntry("GetUserPermissions", "info", fmt.Sprintf("Permissions successfully retrieved for user ID %d", userID), models.User{
+// 		ID: userID,
+// 	}, map[string]interface{}{
+// 		"permissions": permissions,
+// 		"systemId":    systemId,
+// 		"tenantId":    tenantId,
+// 	})
 
-	return permissions, nil
-}
+// 	return permissions, nil
+// }
 
 // CreatePermission adds a new permission to the system
 func CreatePermission(permissionName string, systemId int, tenantId int) error {
@@ -713,213 +712,213 @@ func AssignPermissionsToUser(userID int, permissions []models.Permission, system
 }
 
 // GetRolePermissions retrieves the permissions associated with a specific role
-func GetRolePermissions(roleID int, systemId int, tenantId int) ([]models.Permission, error) {
-	// Log the start of the operation
-	LogEntry("GetRolePermissions", "info", fmt.Sprintf("Retrieving permissions for role ID %d", roleID), models.User{}, map[string]interface{}{
-		"systemId": systemId,
-		"tenantId": tenantId,
-		"roleID":   roleID,
-	})
+// func GetRolePermissions(roleID int, systemId int, tenantId int) ([]models.Permission, error) {
+// 	// Log the start of the operation
+// 	LogEntry("GetRolePermissions", "info", fmt.Sprintf("Retrieving permissions for role ID %d", roleID), models.User{}, map[string]interface{}{
+// 		"systemId": systemId,
+// 		"tenantId": tenantId,
+// 		"roleID":   roleID,
+// 	})
 
-	// SQL query to retrieve role permissions
-	sqlStatement := `
-        SELECT p.id, p.permission_name
-        FROM role_permissions rp
-        JOIN permissions p ON rp.permission_id = p.id
-        WHERE rp.role_id = $1
-    `
+// 	// SQL query to retrieve role permissions
+// 	sqlStatement := `
+//         SELECT p.id, p.permission_name
+//         FROM role_permissions rp
+//         JOIN permissions p ON rp.permission_id = p.id
+//         WHERE rp.role_id = $1
+//     `
 
-	// Get the database connection
-	db, err := GetDBConnection(systemId, tenantId)
-	if err != nil {
-		LogEntry("GetRolePermissions", "error", fmt.Sprintf("Error getting database connection: %s", err.Error()), models.User{}, map[string]interface{}{
-			"systemId": systemId,
-			"tenantId": tenantId,
-			"roleID":   roleID,
-		})
-		return nil, fmt.Errorf("failed to get database connection: %w", err)
-	}
+// 	// Get the database connection
+// 	db, err := GetDBConnection(systemId, tenantId)
+// 	if err != nil {
+// 		LogEntry("GetRolePermissions", "error", fmt.Sprintf("Error getting database connection: %s", err.Error()), models.User{}, map[string]interface{}{
+// 			"systemId": systemId,
+// 			"tenantId": tenantId,
+// 			"roleID":   roleID,
+// 		})
+// 		return nil, fmt.Errorf("failed to get database connection: %w", err)
+// 	}
 
-	// Execute the query and fetch the permissions
-	var permissions []models.Permission
-	var permission models.Permission
+// 	// Execute the query and fetch the permissions
+// 	var permissions []models.Permission
+// 	var permission models.Permission
 
-	rowCount, err := GetMultipleRows(db, sqlStatement, []interface{}{roleID}, []interface{}{&permissions}, []interface{}{
-		&permission.ID,
-		&permission.PermissionName,
-	}, models.LogInfo{
-		Action:  "GetRolePermissions",
-		Message: fmt.Sprintf("Permissions retrieved for role ID %d", roleID),
-		AdditionalData: map[string]interface{}{
-			"systemId": systemId,
-			"tenantId": tenantId,
-			"roleID":   roleID,
-		},
-	})
+// 	rowCount, err := GetMultipleRows(db, sqlStatement, []interface{}{roleID}, []interface{}{&permissions}, []interface{}{
+// 		&permission.ID,
+// 		&permission.PermissionName,
+// 	}, models.LogInfo{
+// 		Action:  "GetRolePermissions",
+// 		Message: fmt.Sprintf("Permissions retrieved for role ID %d", roleID),
+// 		AdditionalData: map[string]interface{}{
+// 			"systemId": systemId,
+// 			"tenantId": tenantId,
+// 			"roleID":   roleID,
+// 		},
+// 	})
 
-	if err != nil {
-		LogEntry("GetRolePermissions", "error", fmt.Sprintf("Error querying permissions for role ID %d: %s", roleID, err.Error()), models.User{}, map[string]interface{}{
-			"systemId": systemId,
-			"tenantId": tenantId,
-			"roleID":   roleID,
-		})
-		return nil, fmt.Errorf("failed to query permissions for role ID %d: %w", roleID, err)
-	}
+// 	if err != nil {
+// 		LogEntry("GetRolePermissions", "error", fmt.Sprintf("Error querying permissions for role ID %d: %s", roleID, err.Error()), models.User{}, map[string]interface{}{
+// 			"systemId": systemId,
+// 			"tenantId": tenantId,
+// 			"roleID":   roleID,
+// 		})
+// 		return nil, fmt.Errorf("failed to query permissions for role ID %d: %w", roleID, err)
+// 	}
 
-	// Handle case where no permissions are found
-	if rowCount == 0 {
-		LogEntry("GetRolePermissions", "info", fmt.Sprintf("No permissions found for role ID %d", roleID), models.User{}, map[string]interface{}{
-			"systemId": systemId,
-			"tenantId": tenantId,
-			"roleID":   roleID,
-		})
-		return nil, fmt.Errorf("no permissions found for role ID %d", roleID)
-	}
+// 	// Handle case where no permissions are found
+// 	if rowCount == 0 {
+// 		LogEntry("GetRolePermissions", "info", fmt.Sprintf("No permissions found for role ID %d", roleID), models.User{}, map[string]interface{}{
+// 			"systemId": systemId,
+// 			"tenantId": tenantId,
+// 			"roleID":   roleID,
+// 		})
+// 		return nil, fmt.Errorf("no permissions found for role ID %d", roleID)
+// 	}
 
-	// Log the successful retrieval
-	LogEntry("GetRolePermissions", "info", fmt.Sprintf("Permissions successfully retrieved for role ID %d", roleID), models.User{}, map[string]interface{}{
-		"systemId":    systemId,
-		"tenantId":    tenantId,
-		"roleID":      roleID,
-		"permissions": permissions,
-	})
+// 	// Log the successful retrieval
+// 	LogEntry("GetRolePermissions", "info", fmt.Sprintf("Permissions successfully retrieved for role ID %d", roleID), models.User{}, map[string]interface{}{
+// 		"systemId":    systemId,
+// 		"tenantId":    tenantId,
+// 		"roleID":      roleID,
+// 		"permissions": permissions,
+// 	})
 
-	return permissions, nil
-}
+// 	return permissions, nil
+// }
 
 // GetPermissions retrieves permissions for a specific system and tenant
-func GetPermissions(systemId int, tenantId int) ([]models.Permission, error) {
-	sqlStatement := `
-        SELECT id, permission_name
-        FROM permissions;
-    `
+// func GetPermissions(systemId int, tenantId int) ([]models.Permission, error) {
+// 	sqlStatement := `
+//         SELECT id, permission_name
+//         FROM permissions;
+//     `
 
-	// Get the database connection
-	db, err := GetDBConnection(systemId, tenantId)
-	if err != nil {
-		LogEntry("GetPermissions in permissionsService", "error",
-			fmt.Sprintf("Error getting database connection: %s", err.Error()),
-			models.User{}, map[string]interface{}{
-				"System": config.SystemsList[systemId].SystemCode,
-				"Tenant": config.TenantsList[tenantId].TenantCode,
-			})
-		return nil, fmt.Errorf("failed to get database connection: %w", err)
-	}
+// 	// Get the database connection
+// 	db, err := GetDBConnection(systemId, tenantId)
+// 	if err != nil {
+// 		LogEntry("GetPermissions in permissionsService", "error",
+// 			fmt.Sprintf("Error getting database connection: %s", err.Error()),
+// 			models.User{}, map[string]interface{}{
+// 				"System": config.SystemsList[systemId].SystemCode,
+// 				"Tenant": config.TenantsList[tenantId].TenantCode,
+// 			})
+// 		return nil, fmt.Errorf("failed to get database connection: %w", err)
+// 	}
 
-	// Use helper function to get multiple rows
-	var permissions []models.Permission
-	var permission models.Permission
-	rowCount, err := GetMultipleRows(db, sqlStatement, nil, []interface{}{&permissions}, []interface{}{
-		&permission.ID,
-		&permission.PermissionName,
-	}, models.LogInfo{
-		Action:  "GetPermissions",
-		Message: fmt.Sprintf("Retrieved permissions for system %s and tenant %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode),
-		User:    models.User{},
-	})
+// 	// Use helper function to get multiple rows
+// 	var permissions []models.Permission
+// 	var permission models.Permission
+// 	rowCount, err := GetMultipleRows(db, sqlStatement, nil, []interface{}{&permissions}, []interface{}{
+// 		&permission.ID,
+// 		&permission.PermissionName,
+// 	}, models.LogInfo{
+// 		Action:  "GetPermissions",
+// 		Message: fmt.Sprintf("Retrieved permissions for system %s and tenant %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode),
+// 		User:    models.User{},
+// 	})
 
-	if err != nil {
-		LogEntry("GetPermissions in permissionsService", "error",
-			fmt.Sprintf("Error querying permissions for system %s and tenant %s: %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode, err.Error()), models.User{},
-			map[string]interface{}{
-				"System": config.SystemsList[systemId].SystemCode,
-				"Tenant": config.TenantsList[tenantId].TenantCode,
-			})
-		return nil, fmt.Errorf("failed to query permissions for system %s and tenant %s: %w", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode, err)
-	}
+// 	if err != nil {
+// 		LogEntry("GetPermissions in permissionsService", "error",
+// 			fmt.Sprintf("Error querying permissions for system %s and tenant %s: %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode, err.Error()), models.User{},
+// 			map[string]interface{}{
+// 				"System": config.SystemsList[systemId].SystemCode,
+// 				"Tenant": config.TenantsList[tenantId].TenantCode,
+// 			})
+// 		return nil, fmt.Errorf("failed to query permissions for system %s and tenant %s: %w", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode, err)
+// 	}
 
-	// Handle case when no rows are found
-	if rowCount == 0 {
-		LogEntry("GetPermissions in permissionsService", "info",
-			fmt.Sprintf("No permissions found for system %s and tenant %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode),
-			models.User{}, map[string]interface{}{
-				"System": config.SystemsList[systemId].SystemCode,
-				"Tenant": config.TenantsList[tenantId].TenantCode,
-			})
-		return nil, fmt.Errorf("no permissions found for system %s and tenant %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode)
-	}
+// 	// Handle case when no rows are found
+// 	if rowCount == 0 {
+// 		LogEntry("GetPermissions in permissionsService", "info",
+// 			fmt.Sprintf("No permissions found for system %s and tenant %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode),
+// 			models.User{}, map[string]interface{}{
+// 				"System": config.SystemsList[systemId].SystemCode,
+// 				"Tenant": config.TenantsList[tenantId].TenantCode,
+// 			})
+// 		return nil, fmt.Errorf("no permissions found for system %s and tenant %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode)
+// 	}
 
-	// Log success
-	LogEntry("GetPermissions in permissionsService", "info",
-		fmt.Sprintf("Permissions retrieved successfully for system %s and tenant %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode),
-		models.User{}, map[string]interface{}{
-			"Permissions": permissions,
-			"System":      config.SystemsList[systemId].SystemCode,
-			"Tenant":      config.TenantsList[tenantId].TenantCode,
-		})
+// 	// Log success
+// 	LogEntry("GetPermissions in permissionsService", "info",
+// 		fmt.Sprintf("Permissions retrieved successfully for system %s and tenant %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode),
+// 		models.User{}, map[string]interface{}{
+// 			"Permissions": permissions,
+// 			"System":      config.SystemsList[systemId].SystemCode,
+// 			"Tenant":      config.TenantsList[tenantId].TenantCode,
+// 		})
 
-	return permissions, nil
-}
+// 	return permissions, nil
+// }
 
 // GetUserWards retrieves the wards assigned to a specific user
-func GetUserWards(userID int, systemId int, tenantId int) ([]models.UserWard, error) {
-	// SQL query to retrieve wards assigned to the user
-	sqlStatement := `
-		SELECT ward_id
-		FROM user_wards
-		WHERE user_id = $1
-	`
+// func GetUserWards(userID int, systemId int, tenantId int) ([]models.UserWard, error) {
+// 	// SQL query to retrieve wards assigned to the user
+// 	sqlStatement := `
+// 		SELECT ward_id
+// 		FROM user_wards
+// 		WHERE user_id = $1
+// 	`
 
-	// Get the database connection
-	db, err := GetDBConnection(systemId, tenantId)
-	if err != nil {
-		LogEntry("GetWardsForUser", "error", fmt.Sprintf("Failed to get database connection: %s", err.Error()), models.User{
-			ID: userID,
-		}, map[string]interface{}{
-			"SystemId": systemId,
-			"TenantId": tenantId,
-			"UserId":   userID,
-		})
-		return nil, fmt.Errorf("failed to get database connection: %w", err)
-	}
+// 	// Get the database connection
+// 	db, err := GetDBConnection(systemId, tenantId)
+// 	if err != nil {
+// 		LogEntry("GetWardsForUser", "error", fmt.Sprintf("Failed to get database connection: %s", err.Error()), models.User{
+// 			ID: userID,
+// 		}, map[string]interface{}{
+// 			"SystemId": systemId,
+// 			"TenantId": tenantId,
+// 			"UserId":   userID,
+// 		})
+// 		return nil, fmt.Errorf("failed to get database connection: %w", err)
+// 	}
 
-	// Execute the SQL query
-	var wards []models.UserWard
-	var ward models.UserWard
-	rowCount, err := GetMultipleRows(db, sqlStatement, []interface{}{userID}, []interface{}{&wards}, []interface{}{
-		&ward.ID,
-	}, models.LogInfo{
-		Action:  "GetWardsForUser",
-		Message: fmt.Sprintf("Wards retrieved successfully for user ID %d", userID),
-		User: models.User{
-			ID: userID,
-		},
-	})
-	if err != nil {
-		LogEntry("GetWardsForUser", "error", fmt.Sprintf("Failed to retrieve wards for user ID %d: %s", userID, err.Error()), models.User{
-			ID: userID,
-		}, map[string]interface{}{
-			"SystemId": systemId,
-			"TenantId": tenantId,
-			"UserId":   userID,
-		})
-		return nil, fmt.Errorf("failed to retrieve wards for user ID %d: %w", userID, err)
-	}
+// 	// Execute the SQL query
+// 	var wards []models.UserWard
+// 	var ward models.UserWard
+// 	rowCount, err := GetMultipleRows(db, sqlStatement, []interface{}{userID}, []interface{}{&wards}, []interface{}{
+// 		&ward.ID,
+// 	}, models.LogInfo{
+// 		Action:  "GetWardsForUser",
+// 		Message: fmt.Sprintf("Wards retrieved successfully for user ID %d", userID),
+// 		User: models.User{
+// 			ID: userID,
+// 		},
+// 	})
+// 	if err != nil {
+// 		LogEntry("GetWardsForUser", "error", fmt.Sprintf("Failed to retrieve wards for user ID %d: %s", userID, err.Error()), models.User{
+// 			ID: userID,
+// 		}, map[string]interface{}{
+// 			"SystemId": systemId,
+// 			"TenantId": tenantId,
+// 			"UserId":   userID,
+// 		})
+// 		return nil, fmt.Errorf("failed to retrieve wards for user ID %d: %w", userID, err)
+// 	}
 
-	// Handle case where no rows are found
-	if rowCount == 0 {
-		LogEntry("GetWardsForUser", "info", fmt.Sprintf("No wards found for user ID %d", userID), models.User{
-			ID: userID,
-		}, map[string]interface{}{
-			"SystemId": systemId,
-			"TenantId": tenantId,
-			"UserId":   userID,
-		})
-		return nil, fmt.Errorf("no wards found for user ID %d", userID)
-	}
+// 	// Handle case where no rows are found
+// 	if rowCount == 0 {
+// 		LogEntry("GetWardsForUser", "info", fmt.Sprintf("No wards found for user ID %d", userID), models.User{
+// 			ID: userID,
+// 		}, map[string]interface{}{
+// 			"SystemId": systemId,
+// 			"TenantId": tenantId,
+// 			"UserId":   userID,
+// 		})
+// 		return nil, fmt.Errorf("no wards found for user ID %d", userID)
+// 	}
 
-	// Log success
-	LogEntry("GetWardsForUser", "info", fmt.Sprintf("Wards retrieved successfully for user ID %d", userID), models.User{
-		ID: userID,
-	}, map[string]interface{}{
-		"Wards":    wards,
-		"SystemId": systemId,
-		"TenantId": tenantId,
-		"UserId":   userID,
-	})
+// 	// Log success
+// 	LogEntry("GetWardsForUser", "info", fmt.Sprintf("Wards retrieved successfully for user ID %d", userID), models.User{
+// 		ID: userID,
+// 	}, map[string]interface{}{
+// 		"Wards":    wards,
+// 		"SystemId": systemId,
+// 		"TenantId": tenantId,
+// 		"UserId":   userID,
+// 	})
 
-	return wards, nil
-}
+// 	return wards, nil
+// }
 
 // EditUserWards updates the wards assigned to a user
 func EditUserWards(userID int, wards []int, systemId int, tenantId int) error {
