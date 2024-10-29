@@ -60,9 +60,11 @@ func scanRow(row *sql.Row, data []interface{}) error {
 // }
 
 // GetMultipleRows for any table with dynamic columns
-func GetMultipleRows(executor interface{}, query string, args []interface{}, data *[]interface{}, scanFields []interface{}, logInfo models.LogInfo) (int, error) {
+func GetMultipleRows(executor interface{}, query string, args []interface{}, scanFields []interface{}, logInfo models.LogInfo) ([]interface{}, error) {
 	var rows *sql.Rows
 	var err error
+
+	var data []interface{}
 
 	switch ex := executor.(type) {
 	case *sql.DB:
@@ -70,12 +72,12 @@ func GetMultipleRows(executor interface{}, query string, args []interface{}, dat
 	case *sql.Tx:
 		rows, err = ex.Query(query, args...)
 	default:
-		return 0, fmt.Errorf("unsupported executor type: %T", executor)
+		return nil, fmt.Errorf("unsupported executor type: %T", executor)
 	}
 
 	if err != nil {
 		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error executing query: %s", err.Error()), logInfo.User, logInfo.AdditionalData)
-		return 0, err
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -84,25 +86,25 @@ func GetMultipleRows(executor interface{}, query string, args []interface{}, dat
 	for rows.Next() {
 		if err := rows.Scan(scanFields...); err != nil {
 			LogEntry(logInfo.Action, "error", fmt.Sprintf("Error scanning rows: %s", err.Error()), logInfo.User, logInfo.AdditionalData)
-			return 0, err
+			return nil, err
 		}
 
-		*data = append(*data, scanFields)
+		data = append(data, scanFields)
 		rowCount++
 	}
 
 	if err := rows.Err(); err != nil {
 		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error iterating over rows: %s", err.Error()), logInfo.User, logInfo.AdditionalData)
-		return rowCount, err
+		return nil, err
 	}
 
 	if rowCount == 0 {
 		LogEntry(logInfo.Action, "info", "No rows found", logInfo.User, logInfo.AdditionalData)
-		return 0, nil
+		return data, nil
 	}
 
 	LogEntry(logInfo.Action, "info", logInfo.Message+" successfully", logInfo.User, logInfo.AdditionalData)
-	return rowCount, nil
+	return data, nil
 }
 
 // Example Get function for retrieving a single row without reflection
