@@ -14,8 +14,8 @@ func SetupRouter() *mux.Router {
 	// Public routes (registration and login)
 	router.HandleFunc("/register", controllers.Register).Methods("POST")
 	router.HandleFunc("/login", controllers.Login).Methods("POST")
-	router.HandleFunc("/roles", middleware.ValidateJWT(controllers.GetRoles)).Methods("GET")
-	router.HandleFunc("/permissions", middleware.ValidateJWT(controllers.GetPermissions)).Methods("GET")
+	// router.HandleFunc("/roles", middleware.ValidateJWT(controllers.GetRoles)).Methods("GET")
+	// router.HandleFunc("/permissions", middleware.ValidateJWT(controllers.GetPermissions)).Methods("GET")
 
 	// Token validation route (requires valid JWT)
 	router.HandleFunc("/validate", middleware.ValidateJWT(controllers.ValidateToken)).Methods("GET")
