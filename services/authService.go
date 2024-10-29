@@ -235,7 +235,7 @@ func AssignDefaultPermissions(user *models.User) error {
 }
 
 // GetUsersList retrieves a list of users by system and tenant
-func GetUsersList(systemId int, tenantId int) ([]interface{}, error) {
+func GetUsersList(systemId int, tenantId int) ([]models.AuthResponse, error) {
 	// sqlStatement := `
 	// 	SELECT u.id, u.first_name, u.last_name, u.email, u.status, r.role_name,
 	// 	       array_agg(DISTINCT p.permission_name) AS permissions,
@@ -263,10 +263,10 @@ func GetUsersList(systemId int, tenantId int) ([]interface{}, error) {
 		return nil, fmt.Errorf("failed to get database connection: %w", err)
 	}
 
-	// var users []models.AuthResponse
+	var users []models.AuthResponse
 	var user models.AuthResponse
 
-	users, err := GetMultipleRows(db, sqlStatement, nil, []interface{}{
+	rowCount, err := GetMultipleRows(db, sqlStatement, nil, []interface{}{&users}, []interface{}{
 		&user.ID,
 		&user.FirstName,
 		&user.LastName,
@@ -282,7 +282,7 @@ func GetUsersList(systemId int, tenantId int) ([]interface{}, error) {
 		return nil, err
 	}
 
-	if len(users) == 0 {
+	if rowCount == 0 {
 		return nil, fmt.Errorf("no users found")
 	}
 
