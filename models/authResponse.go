@@ -8,7 +8,7 @@ type AuthResponse struct {
 	Email               string                `json:"email"`
 	System              string                `json:"system"`
 	Role                string                `json:"role"`
-	Tenant              string                `json:"hospital"`
+	Tenant              string                `json:"tenant"`
 	Status              string                `json:"status"` // 'pending', 'approved', or 'declined'
 	Permissions         []Permission          `json:"permissions"`
 	JWT                 string                `json:"jwt"`
