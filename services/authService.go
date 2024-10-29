@@ -266,7 +266,7 @@ func GetUsersList(systemId int, tenantId int) ([]models.AuthResponse, error) {
 	var users []models.AuthResponse
 	var user models.AuthResponse
 
-	rowCount, err := GetMultipleRows(db, sqlStatement, nil, []interface{}{&users}, []interface{}{
+	rowCount, err := GetMultipleRows(db, sqlStatement, nil, &[]interface{}{&users}, []interface{}{
 		&user.ID,
 		&user.FirstName,
 		&user.LastName,
@@ -274,7 +274,7 @@ func GetUsersList(systemId int, tenantId int) ([]models.AuthResponse, error) {
 		&user.Status,
 		&user.Role,
 	}, models.LogInfo{
-		Action:  "GetUsersList",
+		Action:  "GetUsersList in GetMultipleRows",
 		Message: fmt.Sprintf("Retrieved users for system %d and tenant %d", systemId, tenantId),
 	})
 
