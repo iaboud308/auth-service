@@ -22,12 +22,6 @@ type CustomClaims struct {
 }
 
 func GenerateJWT(user *models.User) (string, error) {
-	// Fetch the role name based on RoleID
-	role, err := GetUserRole(user.RoleID, user.SystemId, user.TenantId)
-	if err != nil {
-		LogEntry("GenerateJWT in jwtService", "error", fmt.Sprintf("Failed to fetch role for user ID %d: %s", user.ID, err.Error()), *user, nil)
-		return "", fmt.Errorf("failed to fetch role for user ID %d: %w", user.ID, err)
-	}
 
 	// Set token expiration time (24 hours)
 	expirationTime := time.Now().Add(24 * time.Hour).Unix()
@@ -38,8 +32,8 @@ func GenerateJWT(user *models.User) (string, error) {
 		LastName:  user.LastName,
 		Email:     user.Email,
 		System:    config.SystemsList[user.SystemId].SystemCode,
-		Role:      role.RoleName, // Include role name in the JWT
-		Tenant:    config.TenantsList[user.TenantId].TenantCode,
+		// Role:      role.RoleName, // Include role name in the JWT
+		Tenant: config.TenantsList[user.TenantId].TenantCode,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			Issuer:    "auth-service",
