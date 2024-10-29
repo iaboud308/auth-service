@@ -112,6 +112,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			SystemId: credentials.SystemId,
 			TenantId: credentials.TenantId,
 		}, nil)
+		json.NewEncoder(w).Encode(map[string]string{"message": "Invalid request data"})
 		return
 	}
 
@@ -123,6 +124,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			SystemId: credentials.SystemId,
 			TenantId: credentials.TenantId,
 		}, nil)
+		json.NewEncoder(w).Encode(map[string]string{"message": "Missing required fields"})
 		return
 	}
 
@@ -134,6 +136,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			Email:    credentials.Email,
 			SystemId: credentials.SystemId,
 			TenantId: credentials.TenantId}, nil)
+		json.NewEncoder(w).Encode(map[string]string{"message": "Invalid username or password"})
 		return
 	}
 
@@ -158,6 +161,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Failed to get user role", http.StatusInternalServerError)
 		services.LogEntry("Login", "error", "Failed to retrieve user role: "+err.Error(), *user, nil)
+		json.NewEncoder(w).Encode(map[string]string{"message": "Failed to retrieve user role"})
 		return
 	}
 
@@ -199,6 +203,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			// "Permissions": permissions,
 			"Role": role.RoleName,
 		})
+		json.NewEncoder(w).Encode(map[string]string{"message": "Invalid username or password"})
 		return
 	}
 
