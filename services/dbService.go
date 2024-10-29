@@ -60,7 +60,7 @@ func scanRow(row *sql.Row, data []interface{}) error {
 // }
 
 // GetMultipleRows for any table with dynamic columns
-func GetMultipleRows(executor interface{}, query string, args []interface{}, data []interface{}, logInfo models.LogInfo) (int, error) {
+func GetMultipleRows(executor interface{}, query string, args []interface{}, data []interface{}, scanFields []interface{}, logInfo models.LogInfo) (int, error) {
 	var rows *sql.Rows
 	var err error
 
@@ -82,11 +82,12 @@ func GetMultipleRows(executor interface{}, query string, args []interface{}, dat
 	var rowCount int
 
 	for rows.Next() {
-		if err := rows.Scan(data...); err != nil {
+		if err := rows.Scan(scanFields...); err != nil {
 			LogEntry(logInfo.Action, "error", fmt.Sprintf("Error scanning rows: %s", err.Error()), logInfo.User, logInfo.AdditionalData)
 			return 0, err
 		}
 
+		data = append(data, scanFields)
 		rowCount++
 	}
 

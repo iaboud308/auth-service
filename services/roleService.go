@@ -438,7 +438,11 @@ func GetRoles(systemId int, tenantId int) ([]models.Role, error) {
 
 	// Use helper function to get multiple rows
 	var roles []models.Role
-	rowCount, err := GetMultipleRows(db, sqlStatement, nil, []interface{}{&roles}, models.LogInfo{
+	var role models.Role
+	rowCount, err := GetMultipleRows(db, sqlStatement, nil, []interface{}{&roles}, []interface{}{
+		role.ID,
+		&role.RoleName,
+	}, models.LogInfo{
 		Action:  "GetRoles",
 		Message: fmt.Sprintf("Retrieved roles for system %s and tenant %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode),
 		User:    models.User{},
