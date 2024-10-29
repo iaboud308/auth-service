@@ -137,6 +137,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	user.SystemId = credentials.SystemId
+	user.TenantId = credentials.TenantId
+
 	services.LogEntry("Login: Retrieved user from database", "info", "User retrieved from database", *user, map[string]interface{}{
 		"SystemId": user.SystemId,
 		"TenantId": user.TenantId,
