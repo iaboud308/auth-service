@@ -215,6 +215,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		Email:               user.Email,
 		System:              config.SystemsList[credentials.SystemId].SystemCode,
 		Role:                role.RoleName,
+		TenantID:            user.TenantId,
 		Tenant:              config.TenantsList[credentials.TenantId].TenantCode,
 		Status:              user.Status,
 		Permissions:         []models.Permission{},
