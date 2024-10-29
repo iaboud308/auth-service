@@ -16,12 +16,20 @@ type CustomClaims struct {
 	LastName  string `json:"last_name,omitempty"`
 	Email     string `json:"email,omitempty"`
 	System    string `json:"system,omitempty"`
-	Role      string `json:"role,omitempty"`
+	RoleName  string `json:"role,omitempty"`
 	Tenant    string `json:"tenant,omitempty"`
 	jwt.RegisteredClaims
 }
 
 func GenerateJWT(user *models.User) (string, error) {
+
+	// Get the role for the user
+	roleName, err := GetUserRole(user.RoleID, user.SystemId, user.TenantId)
+	if err != nil {
+		LogEntry("GenerateJWT in jwtService", "error",
+			fmt.Sprintf("Failed to retrieve role for user ID %d: %s", user.ID, err.Error()), *user, nil)
+		return "", fmt.Errorf("failed to retrieve role for user ID %d: %w", user.ID, err)
+	}
 
 	// Set token expiration time (24 hours)
 	expirationTime := time.Now().Add(24 * time.Hour).Unix()
@@ -32,8 +40,8 @@ func GenerateJWT(user *models.User) (string, error) {
 		LastName:  user.LastName,
 		Email:     user.Email,
 		System:    config.SystemsList[user.SystemId].SystemCode,
-		// Role:      role.RoleName, // Include role name in the JWT
-		Tenant: config.TenantsList[user.TenantId].TenantCode,
+		RoleName:  roleName.RoleName, // Include role name in the JWT
+		Tenant:    config.TenantsList[user.TenantId].TenantCode,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			Issuer:    "auth-service",
@@ -121,11 +129,11 @@ func ValidateJWT(tokenStr string) (bool, error) {
 	}
 
 	LogEntry("ValidateJWT in jwtService", "info", "Token is valid", models.User{}, map[string]interface{}{
-		"UserID":   claims.ID,
-		"Email":    claims.Email,
-		"Role":     claims.Role,
-		"System":   claims.System,
-		"Hospital": claims.Tenant,
+		"UserID":    claims.ID,
+		"Email":     claims.Email,
+		"Role Name": claims.RoleName,
+		"System":    claims.System,
+		"Hospital":  claims.Tenant,
 	})
 
 	return true, nil
@@ -190,7 +198,7 @@ func GetUserFromToken(tokenStr string) (*models.AuthResponse, error) {
 		LastName:    claims.LastName,
 		Email:       claims.Email,
 		System:      claims.System,
-		Role:        claims.Role,
+		Role:        claims.RoleName,
 		Tenant:      claims.Tenant,
 		Permissions: []models.Permission{},
 	}
