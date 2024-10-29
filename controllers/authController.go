@@ -81,11 +81,11 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	})
 
 	// Assign default permissions based on role
-	if err := services.AssignDefaultPermissions(&user); err != nil {
-		http.Error(w, "Failed to assign default permissions", http.StatusInternalServerError)
-		services.LogEntry("Register in auth controller", "error", "Failed to assign default permissions: "+err.Error(), user, nil)
-		return
-	}
+	// if err := services.AssignDefaultPermissions(&user); err != nil {
+	// 	http.Error(w, "Failed to assign default permissions", http.StatusInternalServerError)
+	// 	services.LogEntry("Register in auth controller", "error", "Failed to assign default permissions: "+err.Error(), user, nil)
+	// 	return
+	// }
 
 	// Log successful registration with the correct user ID
 	services.LogEntry("Register in auth controller", "info", "User created successfully", user, nil)
@@ -152,43 +152,43 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userWards, err := services.GetUserWards(user.ID, credentials.SystemId, credentials.TenantId)
-	if err != nil {
-		http.Error(w, "Failed to get user wards", http.StatusInternalServerError)
-		services.LogEntry("Login", "error", "Failed to retrieve user wards: "+err.Error(), *user, map[string]interface{}{
-			"Role": role.RoleName,
-		})
-		// return
-	}
+	// userWards, err := services.GetUserWards(user.ID, credentials.SystemId, credentials.TenantId)
+	// if err != nil {
+	// 	http.Error(w, "Failed to get user wards", http.StatusInternalServerError)
+	// 	services.LogEntry("Login", "error", "Failed to retrieve user wards: "+err.Error(), *user, map[string]interface{}{
+	// 		"Role": role.RoleName,
+	// 	})
+	// 	// return
+	// }
 
 	// Get User Permissions
-	permissions, err := services.GetUserPermissions(user.ID, credentials.SystemId, credentials.TenantId)
-	if err != nil {
-		http.Error(w, "Failed to get user permissions", http.StatusInternalServerError)
-		services.LogEntry("Login", "error", "Failed to retrieve user permissions: "+err.Error(), *user, map[string]interface{}{
-			"Role":  role.RoleName,
-			"Wards": userWards,
-		})
-		return
-	}
+	// permissions, err := services.GetUserPermissions(user.ID, credentials.SystemId, credentials.TenantId)
+	// if err != nil {
+	// 	http.Error(w, "Failed to get user permissions", http.StatusInternalServerError)
+	// 	services.LogEntry("Login", "error", "Failed to retrieve user permissions: "+err.Error(), *user, map[string]interface{}{
+	// 		"Role":  role.RoleName,
+	// 		"Wards": userWards,
+	// 	})
+	// 	return
+	// }
 
-	wardPermissions, err := services.GetUserWardPermissions(user.ID, credentials.SystemId, credentials.TenantId)
-	if err != nil {
-		http.Error(w, "Failed to get user ward permissions", http.StatusInternalServerError)
-		services.LogEntry("Login", "error", "Failed to retrieve user ward permissions: "+err.Error(), *user, map[string]interface{}{
-			"Role":  role.RoleName,
-			"Wards": userWards,
-		})
-		// return
-	}
+	// wardPermissions, err := services.GetUserWardPermissions(user.ID, credentials.SystemId, credentials.TenantId)
+	// if err != nil {
+	// 	http.Error(w, "Failed to get user ward permissions", http.StatusInternalServerError)
+	// 	services.LogEntry("Login", "error", "Failed to retrieve user ward permissions: "+err.Error(), *user, map[string]interface{}{
+	// 		"Role":  role.RoleName,
+	// 		"Wards": userWards,
+	// 	})
+	// 	// return
+	// }
 
 	// Generate JWT token
 	token, err := services.GenerateJWT(user)
 	if err != nil {
 		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
 		services.LogEntry("Login", "error", "Failed to generate JWT token: "+err.Error(), *user, map[string]interface{}{
-			"Permissions": permissions,
-			"Role":        role.RoleName,
+			// "Permissions": permissions,
+			"Role": role.RoleName,
 		})
 		return
 	}
@@ -203,17 +203,17 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		Role:                role.RoleName,
 		Tenant:              config.TenantsList[credentials.TenantId].TenantCode,
 		Status:              user.Status,
-		Permissions:         permissions,
+		Permissions:         []models.Permission{},
 		JWT:                 token,
-		UserWards:           userWards,
-		UserWardPermissions: wardPermissions,
+		UserWards:           []models.UserWard{},
+		UserWardPermissions: []models.UserWardPermissions{},
 	}
 
 	// Log login event
 	services.LogEntry("Login in auth controller", "info", "User logged in successfully", *user, map[string]interface{}{
-		"Permissions": permissions,
-		"Role":        role.RoleName,
-		"JWT":         token,
+		// "Permissions": permissions,
+		"Role": role.RoleName,
+		"JWT":  token,
 	})
 
 	// Respond with success message
