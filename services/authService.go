@@ -266,7 +266,7 @@ func GetUsersList(systemId int, tenantId int) ([]models.AuthResponse, error) {
 	var users []models.AuthResponse
 	var user models.AuthResponse
 
-	rowCount, err := GetMultipleRows(db, sqlStatement, nil, &[]interface{}{&users}, []interface{}{
+	rowCount, err := GetMultipleRows(db, sqlStatement, nil, []interface{}{&users}, []interface{}{
 		&user.ID,
 		&user.FirstName,
 		&user.LastName,
