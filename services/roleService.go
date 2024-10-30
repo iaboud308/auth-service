@@ -418,68 +418,77 @@ func ValidateRoleID(roleID int, systemId int, tenantId int) error {
 }
 
 // GetRoles retrieves all roles for a specific system and tenant
-// func GetRoles(systemId int, tenantId int) ([]models.Role, error) {
-// 	sqlStatement := `
-// 		SELECT id, role_name
-// 		FROM roles;
-// 	`
+func GetRoles(systemId int, tenantId int) ([]models.Role, error) {
+	sqlStatement := `
+		SELECT id, role_name
+		FROM roles;
+	`
 
-// 	// Get the database connection
-// 	db, err := GetDBConnection(systemId, tenantId)
-// 	if err != nil {
-// 		LogEntry("GetRoles in roleService", "error",
-// 			fmt.Sprintf("Error getting database connection: %s", err.Error()),
-// 			models.User{}, map[string]interface{}{
-// 				"SystemId": config.SystemsList[systemId].SystemCode,
-// 				"Tenant":   config.TenantsList[tenantId].TenantCode,
-// 			})
-// 		return nil, fmt.Errorf("failed to get database connection: %w", err)
-// 	}
+	// Get the database connection
+	db, err := GetDBConnection(systemId, tenantId)
+	if err != nil {
+		LogEntry("GetRoles in roleService", "error",
+			fmt.Sprintf("Error getting database connection: %s", err.Error()),
+			models.User{}, map[string]interface{}{
+				"SystemId": config.SystemsList[systemId].SystemCode,
+				"Tenant":   config.TenantsList[tenantId].TenantCode,
+			})
+		return nil, fmt.Errorf("failed to get database connection: %w", err)
+	}
 
-// 	// Use helper function to get multiple rows
-// 	var roles []models.Role
-// 	var role models.Role
-// 	rowCount, err := GetMultipleRows(db, sqlStatement, nil, []interface{}{&roles}, []interface{}{
-// 		role.ID,
-// 		&role.RoleName,
-// 	}, models.LogInfo{
-// 		Action:  "GetRoles",
-// 		Message: fmt.Sprintf("Retrieved roles for system %s and tenant %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode),
-// 		User:    models.User{},
-// 	})
+	var roles []models.Role
+	var role models.Role
 
-// 	if err != nil {
-// 		LogEntry("GetRoles in roleService", "error",
-// 			fmt.Sprintf("Error querying roles for system %s and tenant %s: %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode, err.Error()), models.User{},
-// 			map[string]interface{}{
-// 				"System": config.SystemsList[systemId].SystemCode,
-// 				"Tenant": config.TenantsList[tenantId].TenantCode,
-// 			})
-// 		return nil, fmt.Errorf("failed to query roles for system %s and tenant %s: %w", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode, err)
-// 	}
+	rows, err := db.Query(sqlStatement)
+	if err != nil {
+		LogEntry("GetRoles in roleService", "error",
+			fmt.Sprintf("Error querying roles for system %s and tenant %s: %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode, err.Error()), models.User{},
+			map[string]interface{}{
+				"System": config.SystemsList[systemId].SystemCode,
+				"Tenant": config.TenantsList[tenantId].TenantCode,
+			})
+		return nil, fmt.Errorf("failed to query roles for system %s and tenant %s: %w", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode, err)
+	}
 
-// 	// Handle case when no rows are found
-// 	if rowCount == 0 {
-// 		LogEntry("GetRoles in roleService", "info",
-// 			fmt.Sprintf("No roles found for system %s and tenant %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode),
-// 			models.User{}, map[string]interface{}{
-// 				"System": config.SystemsList[systemId].SystemCode,
-// 				"Tenant": config.TenantsList[tenantId].TenantCode,
-// 			})
-// 		return nil, fmt.Errorf("no roles found for system %s and tenant %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode)
-// 	}
+	defer rows.Close()
 
-// 	// Log success
-// 	LogEntry("GetRoles in roleService", "info",
-// 		fmt.Sprintf("Roles retrieved successfully for system %s and tenant %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode),
-// 		models.User{}, map[string]interface{}{
-// 			"Roles":  roles,
-// 			"System": config.SystemsList[systemId].SystemCode,
-// 			"Tenant": config.TenantsList[tenantId].TenantCode,
-// 		})
+	rowCount := 0
+	for rows.Next() {
+		rowCount++
+		if err := rows.Scan(&role.ID, &role.RoleName); err != nil {
+			LogEntry("GetRoles in roleService", "error",
+				fmt.Sprintf("Error scanning roles for system %s and tenant %s: %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode, err.Error()), models.User{},
+				map[string]interface{}{
+					"System": config.SystemsList[systemId].SystemCode,
+					"Tenant": config.TenantsList[tenantId].TenantCode,
+				})
+			return nil, fmt.Errorf("failed to scan roles for system %s and tenant %s: %w", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode, err)
+		}
+		roles = append(roles, role)
+	}
 
-// 	return roles, nil
-// }
+	// Handle case when no rows are found
+	if rowCount == 0 {
+		LogEntry("GetRoles in roleService", "info",
+			fmt.Sprintf("No roles found for system %s and tenant %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode),
+			models.User{}, map[string]interface{}{
+				"System": config.SystemsList[systemId].SystemCode,
+				"Tenant": config.TenantsList[tenantId].TenantCode,
+			})
+		return nil, fmt.Errorf("no roles found for system %s and tenant %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode)
+	}
+
+	// Log success
+	LogEntry("GetRoles in roleService", "info",
+		fmt.Sprintf("Roles retrieved successfully for system %s and tenant %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode),
+		models.User{}, map[string]interface{}{
+			"Roles":  roles,
+			"System": config.SystemsList[systemId].SystemCode,
+			"Tenant": config.TenantsList[tenantId].TenantCode,
+		})
+
+	return roles, nil
+}
 
 // DeleteRole deletes a role from the database
 func DeleteRole(roleID int, systemId int, tenantId int) error {

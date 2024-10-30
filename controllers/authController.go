@@ -729,51 +729,51 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetRoles retrieves all roles for a specific system and hospital
-// func GetRoles(w http.ResponseWriter, r *http.Request) {
-// 	system := r.Header.Get("X-System-Id")
-// 	tenant := r.Header.Get("X-Tenant-Id")
+func GetRoles(w http.ResponseWriter, r *http.Request) {
+	system := r.Header.Get("X-System-Id")
+	tenant := r.Header.Get("X-Tenant-Id")
 
-// 	// Validate required headers
-// 	if system == "" || tenant == "" {
-// 		services.LogEntry("GetRoles in rolesController", "error", "Missing system or hospital in headers", models.User{}, nil)
-// 		http.Error(w, "Missing system or hospital in headers", http.StatusBadRequest)
-// 		return
-// 	}
+	// Validate required headers
+	if system == "" || tenant == "" {
+		services.LogEntry("GetRoles in rolesController", "error", "Missing system or hospital in headers", models.User{}, nil)
+		http.Error(w, "Missing system or hospital in headers", http.StatusBadRequest)
+		return
+	}
 
-// 	systemId, err := strconv.Atoi(system)
-// 	if err != nil {
-// 		services.LogEntry("GetRoles in rolesController", "error", "Invalid system ID: "+err.Error(), models.User{}, nil)
-// 		http.Error(w, "Invalid system ID", http.StatusBadRequest)
-// 		return
-// 	}
+	systemId, err := strconv.Atoi(system)
+	if err != nil {
+		services.LogEntry("GetRoles in rolesController", "error", "Invalid system ID: "+err.Error(), models.User{}, nil)
+		http.Error(w, "Invalid system ID", http.StatusBadRequest)
+		return
+	}
 
-// 	tenantId, err := strconv.Atoi(tenant)
-// 	if err != nil {
-// 		services.LogEntry("GetRoles in rolesController", "error", "Invalid tenant ID: "+err.Error(), models.User{}, nil)
-// 		http.Error(w, "Invalid tenant ID", http.StatusBadRequest)
-// 		return
-// 	}
+	tenantId, err := strconv.Atoi(tenant)
+	if err != nil {
+		services.LogEntry("GetRoles in rolesController", "error", "Invalid tenant ID: "+err.Error(), models.User{}, nil)
+		http.Error(w, "Invalid tenant ID", http.StatusBadRequest)
+		return
+	}
 
-// 	roles, err := services.GetRoles(systemId, tenantId)
-// 	if err != nil {
-// 		services.LogEntry("GetRoles in rolesController", "error",
-// 			fmt.Sprintf("Failed to retrieve roles for system %s and hospital %s: %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode, err.Error()),
-// 			models.User{}, nil)
-// 		http.Error(w, "Failed to retrieve roles", http.StatusInternalServerError)
-// 		return
-// 	}
+	roles, err := services.GetRoles(systemId, tenantId)
+	if err != nil {
+		services.LogEntry("GetRoles in rolesController", "error",
+			fmt.Sprintf("Failed to retrieve roles for system %s and hospital %s: %s", config.SystemsList[systemId].SystemCode, config.TenantsList[tenantId].TenantCode, err.Error()),
+			models.User{}, nil)
+		http.Error(w, "Failed to retrieve roles", http.StatusInternalServerError)
+		return
+	}
 
-// 	services.LogEntry("GetRoles in rolesController", "info",
-// 		fmt.Sprintf("Roles retrieved successfully for system %s and hospital %s", config.TenantsList[tenantId].TenantCode, config.TenantsList[tenantId].TenantCode),
-// 		models.User{}, map[string]interface{}{
-// 			"Roles": roles,
-// 		})
+	services.LogEntry("GetRoles in rolesController", "info",
+		fmt.Sprintf("Roles retrieved successfully for system %s and hospital %s", config.TenantsList[tenantId].TenantCode, config.TenantsList[tenantId].TenantCode),
+		models.User{}, map[string]interface{}{
+			"Roles": roles,
+		})
 
-// 	// Return roles as JSON
-// 	w.Header().Set("Content-Type", "application/json")
-// 	w.WriteHeader(http.StatusOK)
-// 	json.NewEncoder(w).Encode(roles)
-// }
+	// Return roles as JSON
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(roles)
+}
 
 // GetPermissions retrieves all permissions for a specific system and hospital
 // func GetPermissions(w http.ResponseWriter, r *http.Request) {
