@@ -35,7 +35,7 @@ func SetupRouter() *mux.Router {
 	router.HandleFunc("/user/ward-permissions", middleware.RequireAdmin(controllers.EditUserWardPermissions)).Methods("PUT")
 
 	// Admin route for deleting a user
-	router.HandleFunc("/users/{id}", middleware.RequireAdmin(controllers.DeleteUser)).Methods("DELETE")
+	router.HandleFunc("/users/delete/{id}", middleware.RequireAdmin(controllers.DeleteUser)).Methods("DELETE")
 
 	// Fetch all users for a specific system and hospital (requires admin)
 	router.HandleFunc("/users", middleware.RequireAdmin(controllers.GetUsersList)).Methods("GET")
