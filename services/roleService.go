@@ -244,19 +244,19 @@ func EditUserRole(userID int, roleID int, systemId int, tenantId int) error {
 	}
 
 	// Optionally, assign default permissions based on the new role
-	err = AssignDefaultPermissionsToRole(userID, roleID, systemId, tenantId)
-	if err != nil {
-		LogEntry("EditUserRole in roleService", "error",
-			fmt.Sprintf("Failed to assign default permissions to role ID %d for user ID %d: %s", roleID, userID, err.Error()),
-			models.User{
-				ID: userID,
-			}, map[string]interface{}{
-				"RoleID": roleID,
-				"System": config.SystemsList[systemId].SystemCode,
-				"Tenant": config.TenantsList[tenantId].TenantCode,
-			})
-		return fmt.Errorf("failed to assign default permissions for user ID %d: %w", userID, err)
-	}
+	// err = AssignDefaultPermissionsToRole(userID, roleID, systemId, tenantId)
+	// if err != nil {
+	// 	LogEntry("EditUserRole in roleService", "error",
+	// 		fmt.Sprintf("Failed to assign default permissions to role ID %d for user ID %d: %s", roleID, userID, err.Error()),
+	// 		models.User{
+	// 			ID: userID,
+	// 		}, map[string]interface{}{
+	// 			"RoleID": roleID,
+	// 			"System": config.SystemsList[systemId].SystemCode,
+	// 			"Tenant": config.TenantsList[tenantId].TenantCode,
+	// 		})
+	// 	return fmt.Errorf("failed to assign default permissions for user ID %d: %w", userID, err)
+	// }
 
 	LogEntry("EditUserRole in roleService", "info",
 		fmt.Sprintf("Successfully updated role for user ID %d to role ID %d", userID, roleID),
