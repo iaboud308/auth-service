@@ -235,7 +235,7 @@ func AssignDefaultPermissions(user *models.User) error {
 }
 
 // GetUsersList retrieves a list of users by system and tenant
-func GetUsersList(systemId int, tenantId int) ([]models.AuthResponse, error) {
+func GetUsersList(systemId int, tenantId int) ([]interface{}, error) {
 	// sqlStatement := `
 	// 	SELECT u.id, u.first_name, u.last_name, u.email, u.status, r.role_name,
 	// 	       array_agg(DISTINCT p.permission_name) AS permissions,
@@ -263,17 +263,11 @@ func GetUsersList(systemId int, tenantId int) ([]models.AuthResponse, error) {
 		return nil, fmt.Errorf("failed to get database connection: %w", err)
 	}
 
-	var users []models.AuthResponse
+	var users []interface{}
 	var user models.AuthResponse
+	scanFields := []interface{}{&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Status, &user.Role}
 
-	rowCount, err := GetMultipleRows(db, sqlStatement, nil, []interface{}{&users}, []interface{}{
-		&user.ID,
-		&user.FirstName,
-		&user.LastName,
-		&user.Email,
-		&user.Status,
-		&user.Role,
-	}, models.LogInfo{
+	rowCount, err := GetMultipleRows(db, sqlStatement, nil, &users, scanFields, models.LogInfo{
 		Action:  "GetUsersList in GetMultipleRows",
 		Message: fmt.Sprintf("Retrieved users for system %d and tenant %d", systemId, tenantId),
 	})
@@ -287,7 +281,9 @@ func GetUsersList(systemId int, tenantId int) ([]models.AuthResponse, error) {
 	}
 
 	LogEntry("GetUsersList in authService", "info",
-		fmt.Sprintf("Retrieved %d users for system %d and tenant %d", len(users), systemId, tenantId), models.User{}, nil)
+		fmt.Sprintf("Retrieved %d users for system %d and tenant %d", rowCount, systemId, tenantId), models.User{}, map[string]interface{}{
+			"Result": users,
+		})
 
 	return users, nil
 }
