@@ -54,11 +54,6 @@ func scanRow(row *sql.Row, data []interface{}) error {
 	return row.Scan(data...)
 }
 
-// Dynamic Column Scanning for multiple rows
-// func scanRows(rows *sql.Rows, data []interface{}) error {
-// 	return rows.Scan(data...)
-// }
-
 // GetMultipleRows for any table with dynamic columns
 func GetMultipleRows(executor interface{}, query string, args []interface{}, data *[]interface{}, scanFields []interface{}, logInfo models.LogInfo) (int, error) {
 	var rows *sql.Rows

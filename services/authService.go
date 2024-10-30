@@ -235,7 +235,7 @@ func AssignDefaultPermissions(user *models.User) error {
 }
 
 // GetUsersList retrieves a list of users by system and tenant
-func GetUsersList(systemId int, tenantId int) ([]interface{}, error) {
+func GetUsersList(systemId int, tenantId int) ([]models.AuthResponse, error) {
 	// sqlStatement := `
 	// 	SELECT u.id, u.first_name, u.last_name, u.email, u.status, r.role_name,
 	// 	       array_agg(DISTINCT p.permission_name) AS permissions,
@@ -263,17 +263,24 @@ func GetUsersList(systemId int, tenantId int) ([]interface{}, error) {
 		return nil, fmt.Errorf("failed to get database connection: %w", err)
 	}
 
-	var users []interface{}
+	var users []models.AuthResponse
 	var user models.AuthResponse
-	scanFields := []interface{}{&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Status, &user.Role}
 
-	rowCount, err := GetMultipleRows(db, sqlStatement, nil, &users, scanFields, models.LogInfo{
-		Action:  "GetUsersList in GetMultipleRows",
-		Message: fmt.Sprintf("Retrieved users for system %d and tenant %d", systemId, tenantId),
-	})
-
+	rows, err := db.Query(sqlStatement)
 	if err != nil {
 		return nil, err
+	}
+	defer rows.Close()
+
+	var rowCount int
+
+	for rows.Next() {
+		if err := rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Status, &user.Role); err != nil {
+			return nil, err
+		}
+
+		rowCount++
+		users = append(users, user)
 	}
 
 	if rowCount == 0 {
