@@ -88,12 +88,10 @@ func GetMultipleRows(executor interface{}, query string, args []interface{}, dat
 		}
 
 		// Copy scanFields data into a new instance of the expected type
-		rowCopy := make([]interface{}, len(scanFields))
-		for i, v := range scanFields {
-			rowCopy[i] = v
-		}
+		rowData := make([]interface{}, len(scanFields))
+		copy(rowData, scanFields)
 
-		data = append(data, scanFields)
+		data = append(data, rowData)
 		rowCount++
 	}
 
