@@ -60,7 +60,7 @@ func scanRow(row *sql.Row, data []interface{}) error {
 // }
 
 // GetMultipleRows for any table with dynamic columns
-func GetMultipleRows(executor interface{}, query string, args []interface{}, data []interface{}, scanFields []interface{}, logInfo models.LogInfo) (int, error) {
+func GetMultipleRows(executor interface{}, query string, args []interface{}, data *[]interface{}, scanFields []interface{}, logInfo models.LogInfo) (int, error) {
 	var rows *sql.Rows
 	var err error
 
@@ -87,22 +87,22 @@ func GetMultipleRows(executor interface{}, query string, args []interface{}, dat
 			return 0, err
 		}
 
-		data = append(data, scanFields)
+		*data = append(*data, scanFields)
 		rowCount++
 	}
 
 	if err := rows.Err(); err != nil {
 		LogEntry(logInfo.Action, "error", fmt.Sprintf("Error iterating over rows: %s", err.Error()), logInfo.User, logInfo.AdditionalData)
-		return 0, err
+		return rowCount, err
 	}
 
 	if rowCount == 0 {
 		LogEntry(logInfo.Action, "info", "No rows found", logInfo.User, logInfo.AdditionalData)
-		return 0, nil
+		return rowCount, nil
 	}
 
 	LogEntry(logInfo.Action, "info", logInfo.Message+" successfully", logInfo.User, logInfo.AdditionalData)
-	return 1, nil
+	return rowCount, nil
 }
 
 // Example Get function for retrieving a single row without reflection
