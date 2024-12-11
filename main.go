@@ -17,7 +17,7 @@ func main() {
 
 	// CORS settings
 	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "X-System-Id", "X-Tenant-Id", "Content-Type", "Authorization"})
-	originsOk := handlers.AllowedOrigins([]string{"http://localhost:3000"})
+	originsOk := handlers.AllowedOrigins([]string{"http://localhost:3000", "https://app.alithron.com"})
 	methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"})
 
 	// Start the server
